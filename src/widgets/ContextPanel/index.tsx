@@ -2,7 +2,7 @@ import type { ViewerContext } from '../../shared/types/context';
 import metadataJson from '../../data/metadata.json';
 import type { Metadata } from '../../shared/types/metadata';
 
-const metadata = metadataJson as Metadata;
+const metadata = metadataJson as unknown as Metadata;
 
 type Props = {
   context: ViewerContext;
