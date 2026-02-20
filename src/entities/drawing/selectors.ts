@@ -1,5 +1,7 @@
 import type { Metadata } from '../../shared/types/metadata';
 
-export function getSiteList(metadata: Metadata): string[] {
-  return Object.keys(metadata.drawings);
+export function getSiteList(metadata: Metadata) {
+  return Object.values(metadata.drawings)
+    .filter((d) => d.parent === null)
+    .map((d) => d.name);
 }

@@ -1,10 +1,14 @@
+import { getSiteList } from '../../entities/drawing/selectors';
 import type { ViewerContext } from '../../shared/types/context';
+import metadata from '../../data/metadata.json';
 
 type Props = {
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
 };
 
 export default function ExplorerSidebar({ setContext }: Props) {
+  const sites = getSiteList(metadata);
+
   const selectDrawing = (site: ViewerContext['site'], discipline: ViewerContext['discipline']) => {
     setContext({
       site,
@@ -12,14 +16,14 @@ export default function ExplorerSidebar({ setContext }: Props) {
       revision: 'REV1',
     });
   };
-
+  console.log(sites);
   return (
     <div style={{ width: 200, borderRight: '1px solid #ddd' }}>
-      <button onClick={() => selectDrawing('101동', '건축')}>101동 건축</button>
-
-      <button onClick={() => selectDrawing('101동', '설비')}>101동 설비</button>
-
-      <button onClick={() => selectDrawing('주차장', '소방')}>주차장 소방</button>
+      {sites.map((site) => (
+        <button key={site} onClick={() => selectDrawing(site as ViewerContext['site'], '건축')}>
+          {site}
+        </button>
+      ))}
     </div>
   );
 }
