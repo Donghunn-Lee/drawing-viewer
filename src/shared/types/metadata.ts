@@ -1,5 +1,5 @@
 export type Metadata = {
-  project: { name: string };
-  disciplines: string[];
+  project: { name: string; unit: string };
+  disciplines: { name: string }[];
   drawings: Record<string, unknown>;
 };

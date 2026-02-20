@@ -2,6 +2,7 @@ import type { ViewerContext } from '../../shared/types/context';
 import { getImageSrc } from '../../shared/utils/gameImageSrc';
 
 import metadata from '../../data/metadata.json';
+import { getSiteList } from '../../entities/drawing/selectors';
 
 type Props = {
   context: ViewerContext;
@@ -9,6 +10,7 @@ type Props = {
 
 console.log(metadata.project);
 console.log(Object.keys(metadata.drawings));
+console.log(getSiteList(metadata));
 
 export default function ViewerPane({ context }: Props) {
   const src = getImageSrc(context);
