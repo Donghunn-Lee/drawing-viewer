@@ -1,7 +1,7 @@
+import { useEffect, useState } from 'react';
 import type { ViewerContext } from '../../shared/types/context';
 import type { Metadata } from '../../shared/types/metadata';
 import metadataJson from '../../data/metadata.json';
-import { useEffect, useState } from 'react';
 
 const metadata = metadataJson as unknown as Metadata;
 
@@ -14,12 +14,6 @@ export const ViewerPane = ({ context }: Props) => {
 
   const activeDrawingId = context.activeDrawingId;
   const drawing = activeDrawingId ? metadata.drawings[activeDrawingId] : null;
-  const disciplines = drawing?.disciplines ? Object.keys(drawing.disciplines) : [];
-
-  const disciplineData = activeDiscipline ? drawing?.disciplines?.[activeDiscipline] : null;
-  const imageSrc = disciplineData?.image
-    ? `/drawings/${disciplineData.image}`
-    : `/drawings/${drawing?.image}`;
 
   useEffect(() => {
     setActiveDiscipline(null);
@@ -27,6 +21,24 @@ export const ViewerPane = ({ context }: Props) => {
 
   if (!drawing) {
     return <div style={{ flex: 1, background: '#f5f5f5' }} />;
+  }
+
+  const disciplines = drawing.disciplines ? Object.keys(drawing.disciplines) : [];
+  const disciplineData = activeDiscipline ? drawing.disciplines?.[activeDiscipline] : null;
+
+  let imageSrc = `/drawings/${drawing.image}`;
+
+  if (activeDiscipline && disciplineData) {
+    const revisionImage =
+      disciplineData.revisions && disciplineData.revisions.length > 0
+        ? disciplineData.revisions[disciplineData.revisions.length - 1].image
+        : null;
+
+    imageSrc = disciplineData.image
+      ? `/drawings/${disciplineData.image}`
+      : revisionImage
+        ? `/drawings/${revisionImage}`
+        : imageSrc;
   }
 
   return (
