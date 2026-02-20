@@ -16,6 +16,11 @@ export const ViewerPane = ({ context }: Props) => {
   const drawing = activeDrawingId ? metadata.drawings[activeDrawingId] : null;
   const disciplines = drawing?.disciplines ? Object.keys(drawing.disciplines) : [];
 
+  const disciplineData = activeDiscipline ? drawing?.disciplines?.[activeDiscipline] : null;
+  const imageSrc = disciplineData?.image
+    ? `/drawings/${disciplineData.image}`
+    : `/drawings/${drawing?.image}`;
+
   useEffect(() => {
     setActiveDiscipline(null);
   }, [context.activeDrawingId]);
@@ -43,7 +48,7 @@ export const ViewerPane = ({ context }: Props) => {
       </div>
 
       <div style={{ flex: 1, background: '#f5f5f5' }}>
-        <img src={`/drawings/${drawing.image}`} style={{ width: '100%' }} />
+        <img src={imageSrc} style={{ width: '100%' }} />
       </div>
     </>
   );
