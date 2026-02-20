@@ -1,12 +1,12 @@
 import type { Drawing, Metadata } from '../../shared/types/metadata';
 
-export const getSiteList = (metadata: Metadata): string[] => {
-  const root = Object.values(metadata.drawings).find((d: Drawing) => d.parent === null);
+export const getSiteList = (metadata: Metadata) => {
+  const root = Object.values(metadata.drawings).find((d) => d.parent === null);
   if (!root) return [];
 
   return Object.values(metadata.drawings)
-    .filter((d: Drawing) => d.parent === root.id)
-    .map((d: Drawing) => d.name);
+    .filter((d) => d.parent === root.id)
+    .map((d) => ({ id: d.id, name: d.name }));
 };
 
 export const getDisciplinesBySite = (metadata: Metadata, siteName: string): string[] => {

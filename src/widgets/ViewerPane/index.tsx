@@ -1,8 +1,10 @@
 import type { ViewerContext } from '../../shared/types/context';
-import { getImageSrc } from '../../shared/utils/gameImageSrc';
+import type { Metadata } from '../../shared/types/metadata';
 
-import metadata from '../../data/metadata.json';
+import metadataJson from '../../data/metadata.json';
 import { getSiteList } from '../../entities/drawing/selectors';
+
+const metadata = metadataJson as Metadata;
 
 type Props = {
   context: ViewerContext;
@@ -13,11 +15,17 @@ console.log(Object.keys(metadata.drawings));
 console.log(getSiteList(metadata));
 
 export const ViewerPane = ({ context }: Props) => {
-  const src = getImageSrc(context);
+  const id = context.activeDrawingId;
+  if (!id) return null;
+
+  const drawing = metadata.drawings[id];
+  if (!drawing) return null;
+
+  console.log(drawing);
 
   return (
     <div style={{ flex: 1, background: '#f5f5f5' }}>
-      <img src={src} style={{ width: '100%' }} />
+      <img src={`/drawings/${drawing.image}`} style={{ width: '100%' }} />
     </div>
   );
 };
