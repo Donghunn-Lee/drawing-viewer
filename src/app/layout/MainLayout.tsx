@@ -11,7 +11,7 @@ type Props = {
 export function MainLayout({ context, setContext }: Props) {
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      <ExplorerSidebar setContext={setContext} />
+      <ExplorerSidebar setContext={setContext} activeDrawingId={context.activeDrawingId} />
       <ViewerPane context={context} />
       <ContextPanel context={context} />
     </div>
