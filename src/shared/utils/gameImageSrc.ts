@@ -11,7 +11,7 @@ const IMAGE_MAP = {
   },
 } as const;
 
-export function getImageSrc(context: ViewerContext): string {
+export const getImageSrc = (context: ViewerContext): string => {
   if (context.site === '101동') {
     return IMAGE_MAP['101동'][context.discipline as '건축' | '설비'] ?? '';
   }
@@ -21,4 +21,4 @@ export function getImageSrc(context: ViewerContext): string {
   }
 
   return '';
-}
+};

@@ -6,7 +6,7 @@ type Props = {
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
 };
 
-export default function ExplorerSidebar({ setContext }: Props) {
+export const ExplorerSidebar = ({ setContext }: Props) => {
   const sites = getSiteList(metadata);
 
   const selectDrawing = (site: ViewerContext['site'], discipline: ViewerContext['discipline']) => {
@@ -26,4 +26,4 @@ export default function ExplorerSidebar({ setContext }: Props) {
       ))}
     </div>
   );
-}
+};

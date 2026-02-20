@@ -12,7 +12,7 @@ console.log(metadata.project);
 console.log(Object.keys(metadata.drawings));
 console.log(getSiteList(metadata));
 
-export default function ViewerPane({ context }: Props) {
+export const ViewerPane = ({ context }: Props) => {
   const src = getImageSrc(context);
 
   return (
@@ -20,4 +20,4 @@ export default function ViewerPane({ context }: Props) {
       <img src={src} style={{ width: '100%' }} />
     </div>
   );
-}
+};

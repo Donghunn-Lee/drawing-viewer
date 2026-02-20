@@ -1,7 +1,7 @@
 import type { ViewerContext } from '../../shared/types/context';
-import ExplorerSidebar from '../../widgets/ExplorerSidebar';
-import ViewerPane from '../../widgets/ViewerPane';
-import ContextPanel from '../../widgets/ContextPanel';
+import { ExplorerSidebar } from '../../widgets/ExplorerSidebar';
+import { ViewerPane } from '../../widgets/ViewerPane';
+import { ContextPanel } from '../../widgets/ContextPanel';
 
 type Props = {
   context: ViewerContext;

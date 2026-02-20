@@ -4,7 +4,7 @@ type Props = {
   context: ViewerContext;
 };
 
-export default function ContextPanel({ context }: Props) {
+export const ContextPanel = ({ context }: Props) => {
   return (
     <div style={{ width: 250, borderLeft: '1px solid #ddd', padding: 12 }}>
       <div>공간: {context.site}</div>
@@ -12,4 +12,4 @@ export default function ContextPanel({ context }: Props) {
       <div>리비전: {context.revision}</div>
     </div>
   );
-}
+};
