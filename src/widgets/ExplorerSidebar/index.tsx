@@ -15,7 +15,7 @@ export const ExplorerSidebar = ({ setContext, activeDrawingId }: Props) => {
   };
 
   return (
-    <div style={{ width: 200, borderRight: '1px solid #ddd' }}>
+    <div>
       {sites.map((site) => (
         <button
           key={site.id}

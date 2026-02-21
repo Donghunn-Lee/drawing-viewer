@@ -75,7 +75,7 @@ export const ViewerPane = ({ context, setContext }: Props) => {
   }
 
   return (
-    <>
+    <div>
       <div style={{ padding: 8, borderBottom: '1px solid #ddd' }}>
         <div style={{ display: 'flex', gap: 8 }}>
           {disciplines.map((d) => (
@@ -111,9 +111,9 @@ export const ViewerPane = ({ context, setContext }: Props) => {
         )}
       </div>
 
-      <div style={{ flex: 1, background: '#f5f5f5' }}>
+      <div style={{ background: '#f5f5f5' }}>
         <img src={imageSrc} style={{ width: '100%' }} />
       </div>
-    </>
+    </div>
   );
 };

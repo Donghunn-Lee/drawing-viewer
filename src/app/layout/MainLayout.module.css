@@ -1,0 +1,30 @@
+.mainLayout {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  border-right: 1px solid #ddd;
+}
+
+.viewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.context {
+  width: 260px;
+  border-left: 1px solid #ddd;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 180px;
+  }
+
+  .context {
+    width: 200px;
+  }
+}

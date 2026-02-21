@@ -11,9 +11,7 @@ type Props = {
 export const ContextPanel = ({ context }: Props) => {
   const id = context.activeDrawingId;
   if (!id) {
-    return (
-      <div style={{ width: 250, borderLeft: '1px solid #ddd', padding: 12 }}>선택된 도면 없음</div>
-    );
+    return <div>선택된 도면 없음</div>;
   }
 
   const drawing = metadata.drawings[id];
