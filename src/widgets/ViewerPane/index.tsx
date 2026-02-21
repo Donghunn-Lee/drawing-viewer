@@ -13,6 +13,8 @@ type Props = {
 export const ViewerPane = ({ context, setContext }: Props) => {
   const [activeDiscipline, setActiveDiscipline] = useState<string | null>(null);
   const [activeRevision, setActiveRevision] = useState<string | null>(null);
+  const [overlayDiscipline, setOverlayDiscipline] = useState<string | null>(null);
+  const [overlayOpacity, setOverlayOpacity] = useState(0.5);
 
   const activeDrawingId = context.activeDrawingId;
   const drawing = activeDrawingId ? metadata.drawings[activeDrawingId] : null;
@@ -61,21 +63,28 @@ export const ViewerPane = ({ context, setContext }: Props) => {
 
   const revisions = disciplineData?.revisions ?? [];
 
-  let imageSrc = `/drawings/${drawing.image}`;
+  let baseSrc = `/drawings/${drawing.image}`;
 
   if (activeDiscipline && disciplineData) {
     if (activeRevision) {
       const selected = revisions.find((r) => r.version === activeRevision);
-      if (selected) imageSrc = `/drawings/${selected.image}`;
+      if (selected) baseSrc = `/drawings/${selected.image}`;
     } else if (revisions.length > 0) {
-      imageSrc = `/drawings/${revisions[revisions.length - 1].image}`;
+      baseSrc = `/drawings/${revisions[revisions.length - 1].image}`;
     } else if (disciplineData.image) {
-      imageSrc = `/drawings/${disciplineData.image}`;
+      baseSrc = `/drawings/${disciplineData.image}`;
     }
   }
 
+  const overlaySrc =
+    overlayDiscipline && drawing.disciplines?.[overlayDiscipline]
+      ? `/drawings/${drawing.disciplines[overlayDiscipline].imageTransform?.relativeTo}`
+      : null;
+
   return (
     <div>
+      <button onClick={() => setOverlayDiscipline('소방')}>소방 겹쳐보기</button>
+
       <div style={{ padding: 8, borderBottom: '1px solid #ddd' }}>
         <div style={{ display: 'flex', gap: 8 }}>
           {disciplines.map((d) => (
@@ -111,8 +120,22 @@ export const ViewerPane = ({ context, setContext }: Props) => {
         )}
       </div>
 
-      <div style={{ background: '#f5f5f5' }}>
-        <img src={imageSrc} style={{ width: '100%' }} />
+      <div style={{ position: 'relative', width: '100%' }}>
+        <img src={baseSrc} style={{ width: '100%' }} />
+
+        {overlaySrc && (
+          <img
+            src={overlaySrc}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              opacity: overlayOpacity,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
       </div>
     </div>
   );
