@@ -7,19 +7,46 @@ const metadata = metadataJson as unknown as Metadata;
 
 type Props = {
   context: ViewerContext;
+  setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
 };
 
-export const ViewerPane = ({ context }: Props) => {
+export const ViewerPane = ({ context, setContext }: Props) => {
   const [activeDiscipline, setActiveDiscipline] = useState<string | null>(null);
   const [activeRevision, setActiveRevision] = useState<string | null>(null);
 
   const activeDrawingId = context.activeDrawingId;
   const drawing = activeDrawingId ? metadata.drawings[activeDrawingId] : null;
 
+  const onSelectDiscipline = (discipline: string) => {
+    setActiveDiscipline(discipline);
+    setActiveRevision(null);
+
+    setContext((prev) => ({
+      ...prev,
+      activeDiscipline: discipline,
+      activeRevision: null,
+    }));
+  };
+
+  const onSelectRevision = (revision: string) => {
+    setActiveRevision(revision);
+
+    setContext((prev) => ({
+      ...prev,
+      activeRevision: revision,
+    }));
+  };
+
   useEffect(() => {
     setActiveDiscipline(null);
     setActiveRevision(null);
-  }, [context.activeDrawingId]);
+
+    setContext((prev) => ({
+      ...prev,
+      activeDiscipline: null,
+      activeRevision: null,
+    }));
+  }, [activeDrawingId]);
 
   useEffect(() => {
     setActiveRevision(null);
@@ -54,7 +81,7 @@ export const ViewerPane = ({ context }: Props) => {
           {disciplines.map((d) => (
             <button
               key={d}
-              onClick={() => setActiveDiscipline(d)}
+              onClick={() => onSelectDiscipline(d)}
               style={{
                 background: d === activeDiscipline ? '#444' : 'transparent',
                 color: d === activeDiscipline ? '#fff' : '#000',
@@ -70,7 +97,7 @@ export const ViewerPane = ({ context }: Props) => {
             {revisions.map((r) => (
               <button
                 key={r.version}
-                onClick={() => setActiveRevision(r.version)}
+                onClick={() => onSelectRevision(r.version)}
                 style={{
                   background: r.version === activeRevision ? '#444' : 'transparent',
                   color: r.version === activeRevision ? '#fff' : '#000',

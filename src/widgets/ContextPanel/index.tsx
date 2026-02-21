@@ -20,8 +20,10 @@ export const ContextPanel = ({ context }: Props) => {
   if (!drawing) return null;
 
   return (
-    <div style={{ width: 250, borderLeft: '1px solid #ddd', padding: 12 }}>
-      <div>{drawing.name}</div>
+    <div>
+      <div>도면: {drawing?.name}</div>
+      <div>공종: {context.activeDiscipline ?? '전체'}</div>
+      <div>리비전: {context.activeRevision ?? 'latest'}</div>
     </div>
   );
 };
