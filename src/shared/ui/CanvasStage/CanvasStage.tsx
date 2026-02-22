@@ -178,7 +178,7 @@ export const CanvasStage = ({
       ctx.save();
       applyWorldTransform(ctx, o.imageTransform);
       ctx.globalAlpha = o.opacity ?? 0.5;
-      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(img, 0, 0, baseImg.width, baseImg.height);
       ctx.restore();
     }
 
