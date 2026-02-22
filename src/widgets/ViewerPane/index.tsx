@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ViewerContext } from '../../shared/types/context';
 import type { Metadata } from '../../shared/types/metadata';
 import metadataJson from '../../data/metadata.json';
+import { getBaseImageSrc, getOverlayImageSrc } from '../../entities/drawing/selectors';
 
 const metadata = metadataJson as unknown as Metadata;
 
@@ -60,26 +61,10 @@ export const ViewerPane = ({ context, setContext }: Props) => {
 
   const disciplines = drawing.disciplines ? Object.keys(drawing.disciplines) : [];
   const disciplineData = activeDiscipline ? drawing.disciplines?.[activeDiscipline] : null;
-
   const revisions = disciplineData?.revisions ?? [];
 
-  let baseSrc = `/drawings/${drawing.image}`;
-
-  if (activeDiscipline && disciplineData) {
-    if (activeRevision) {
-      const selected = revisions.find((r) => r.version === activeRevision);
-      if (selected) baseSrc = `/drawings/${selected.image}`;
-    } else if (revisions.length > 0) {
-      baseSrc = `/drawings/${revisions[revisions.length - 1].image}`;
-    } else if (disciplineData.image) {
-      baseSrc = `/drawings/${disciplineData.image}`;
-    }
-  }
-
-  const overlaySrc =
-    overlayDiscipline && drawing.disciplines?.[overlayDiscipline]
-      ? `/drawings/${drawing.disciplines[overlayDiscipline].imageTransform?.relativeTo}`
-      : null;
+  const baseSrc = getBaseImageSrc({ drawing, activeDiscipline, activeRevision });
+  const overlaySrc = getOverlayImageSrc(drawing, overlayDiscipline);
 
   return (
     <div>
