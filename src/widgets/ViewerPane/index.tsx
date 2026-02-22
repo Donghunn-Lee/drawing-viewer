@@ -3,6 +3,7 @@ import type { ViewerContext } from '../../shared/types/context';
 import type { Metadata } from '../../shared/types/metadata';
 import metadataJson from '../../data/metadata.json';
 import { getBaseImageSrc, getOverlayImageSrc } from '../../entities/drawing/selectors';
+import { CanvasStage } from '../../shared/ui/CanvasStage';
 
 const metadata = metadataJson as unknown as Metadata;
 
@@ -161,22 +162,24 @@ export const ViewerPane = ({ context, setContext }: Props) => {
         )}
       </div>
 
-      <div style={{ position: 'relative', width: '100%' }}>
-        <img src={baseSrc} style={{ width: '100%' }} />
-
-        {overlaySrc && (
-          <img
-            src={overlaySrc}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              opacity: overlay.opacity,
-              pointerEvents: 'none',
-            }}
-          />
-        )}
+      <div style={{ position: 'relative' }}>
+        <CanvasStage
+          width={900} // 임시: 부모 width를 재서 넣는 건 다음 단계
+          height={600}
+          baseSrc={baseSrc}
+          overlays={
+            overlaySrc
+              ? [
+                  {
+                    src: overlaySrc,
+                    opacity: overlay.opacity,
+                    // imageTransform은 다음 단계에서 selector로 가져와서 연결
+                  },
+                ]
+              : []
+          }
+          polygons={[]}
+        />
       </div>
     </div>
   );
