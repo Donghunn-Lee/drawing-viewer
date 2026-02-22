@@ -11,11 +11,18 @@ type Props = {
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
 };
 
+type OverlayState = {
+  enabled: boolean;
+  opacity: number;
+};
+
 export const ViewerPane = ({ context, setContext }: Props) => {
   const [activeDiscipline, setActiveDiscipline] = useState<string | null>(null);
   const [activeRevision, setActiveRevision] = useState<string | null>(null);
-  const [overlayDiscipline, setOverlayDiscipline] = useState<string | null>(null);
-  const [overlayOpacity, setOverlayOpacity] = useState(0.5);
+  const [overlay, setOverlay] = useState<OverlayState>({
+    enabled: false,
+    opacity: 0.5,
+  });
 
   const activeDrawingId = context.activeDrawingId;
   const drawing = activeDrawingId ? metadata.drawings[activeDrawingId] : null;
@@ -37,6 +44,13 @@ export const ViewerPane = ({ context, setContext }: Props) => {
     setContext((prev) => ({
       ...prev,
       activeRevision: revision,
+    }));
+  };
+
+  const toggleOverlay = () => {
+    setOverlay((prev) => ({
+      ...prev,
+      enabled: !prev.enabled,
     }));
   };
 
@@ -64,11 +78,18 @@ export const ViewerPane = ({ context, setContext }: Props) => {
   const revisions = disciplineData?.revisions ?? [];
 
   const baseSrc = getBaseImageSrc({ drawing, activeDiscipline, activeRevision });
-  const overlaySrc = getOverlayImageSrc(drawing, overlayDiscipline);
+  const overlaySrc = overlay.enabled ? getOverlayImageSrc(drawing) : null;
+
+  console.log(overlaySrc);
 
   return (
     <div>
-      <button onClick={() => setOverlayDiscipline('소방')}>소방 겹쳐보기</button>
+      <div>
+        <label>
+          <input type="checkbox" checked={overlay.enabled} onChange={toggleOverlay} />
+          Show architectural reference
+        </label>
+      </div>
 
       <div style={{ padding: 8, borderBottom: '1px solid #ddd' }}>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -116,7 +137,7 @@ export const ViewerPane = ({ context, setContext }: Props) => {
               top: 0,
               left: 0,
               width: '100%',
-              opacity: overlayOpacity,
+              opacity: overlay.opacity,
               pointerEvents: 'none',
             }}
           />

@@ -56,15 +56,15 @@ export function getBaseImageSrc({
   return `/drawings/${drawing.image}`;
 }
 
-export function getOverlayImageSrc(
-  drawing: Drawing,
-  overlayDiscipline: string | null,
-): string | null {
-  if (!overlayDiscipline) return null;
+// NOTE: overlay always uses architectural reference image
+export function getOverlayImageSrc(drawing: Drawing): string | null {
+  const disciplines = drawing.disciplines;
+  if (!disciplines) return null;
 
-  const discipline = drawing.disciplines?.[overlayDiscipline];
+  // find any discipline that references architectural base
+  const reference = Object.values(disciplines).find((d) => d.imageTransform?.relativeTo);
 
-  if (!discipline?.imageTransform?.relativeTo) return null;
+  if (!reference?.imageTransform?.relativeTo) return null;
 
-  return `/drawings/${discipline.imageTransform.relativeTo}`;
+  return `/drawings/${reference.imageTransform.relativeTo}`;
 }
