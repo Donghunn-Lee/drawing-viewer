@@ -3,4 +3,5 @@ export type ViewerContext = {
   activeDiscipline?: string | null;
   activeRegion?: string | null;
   activeRevision?: string | null;
+  overlay?: { enabled: boolean; targets: string[]; opacity: number };
 };
