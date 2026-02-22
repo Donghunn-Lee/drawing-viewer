@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ViewerContext } from '../../shared/types/context';
 import type { Metadata } from '../../shared/types/metadata';
 import metadataJson from '../../data/metadata.json';
-import { getBaseImageSrc, getOverlayImageSrc } from '../../entities/drawing/selectors';
+import { getBaseImageSrc, getOverlayImage } from '../../entities/drawing/selectors';
 import { CanvasStage } from '../../shared/ui/CanvasStage';
 
 const metadata = metadataJson as unknown as Metadata;
@@ -98,9 +98,20 @@ export const ViewerPane = ({ context, setContext }: Props) => {
       : (disciplineData?.revisions ?? []);
 
   const baseSrc = getBaseImageSrc({ drawing, activeDiscipline, activeRegion, activeRevision });
-  const overlaySrc = overlay.enabled
-    ? getOverlayImageSrc({ drawing, activeDiscipline, activeRegion, activeRevision })
+  const overlayInfo = overlay.enabled
+    ? getOverlayImage({ drawing, activeDiscipline, activeRegion, activeRevision })
     : null;
+
+  const stageBaseSrc = overlayInfo ? overlayInfo.src : baseSrc;
+  const stageOverlays = overlayInfo
+    ? [
+        {
+          src: baseSrc, // active drawing
+          opacity: overlay.opacity,
+          imageTransform: overlayInfo.imageTransform, // align active onto reference
+        },
+      ]
+    : [];
 
   return (
     <div>
@@ -166,18 +177,8 @@ export const ViewerPane = ({ context, setContext }: Props) => {
         <CanvasStage
           width={900} // 임시: 부모 width를 재서 넣는 건 다음 단계
           height={600}
-          baseSrc={baseSrc}
-          overlays={
-            overlaySrc
-              ? [
-                  {
-                    src: overlaySrc,
-                    opacity: overlay.opacity,
-                    // imageTransform은 다음 단계에서 selector로 가져와서 연결
-                  },
-                ]
-              : []
-          }
+          baseSrc={stageBaseSrc}
+          overlays={stageOverlays}
           polygons={[]}
         />
       </div>

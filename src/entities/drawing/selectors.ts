@@ -1,10 +1,15 @@
-import type { Drawing, Metadata } from '../../shared/types/metadata';
+import type { Drawing, Metadata, Transform } from '../../shared/types/metadata';
 
 type GetImageSrcParams = {
   drawing: Drawing;
   activeDiscipline: string | null;
   activeRegion: string | null;
   activeRevision: string | null;
+};
+
+export type OverlayImage = {
+  src: string;
+  imageTransform?: Transform;
 };
 
 // NOTE: legacy selector from early site-based exploration
@@ -132,3 +137,60 @@ export function getOverlayImageSrc({
 
   return null;
 }
+
+// Overlay reference image + transform for aligning the active drawing image.
+// NOTE: overlay is the reference image pointed by relativeTo.
+// imageTransform is used to draw the active image aligned onto that reference.
+export const getOverlayImage = ({
+  drawing,
+  activeDiscipline,
+  activeRegion,
+  activeRevision,
+}: GetImageSrcParams): OverlayImage | null => {
+  const disciplines = drawing.disciplines;
+  if (!disciplines || !activeDiscipline) return null;
+
+  const discipline = disciplines[activeDiscipline];
+  if (!discipline) return null;
+
+  // Region revision case (e.g. structural regions)
+  if (discipline.regions && activeRegion) {
+    const region = discipline.regions[activeRegion];
+    if (!region) return null;
+
+    const revisions = region.revisions ?? [];
+
+    // Prefer selected revision
+    if (activeRevision) {
+      const selected = revisions.find((r) => r.version === activeRevision);
+      const relativeTo = selected?.imageTransform?.relativeTo;
+      if (relativeTo) {
+        return {
+          src: `/drawings/${relativeTo}`,
+          imageTransform: selected?.imageTransform,
+        };
+      }
+    }
+
+    // Fallback to latest revision
+    const latest = revisions[revisions.length - 1];
+    const relativeTo = latest?.imageTransform?.relativeTo;
+    if (relativeTo) {
+      return {
+        src: `/drawings/${relativeTo}`,
+        imageTransform: latest?.imageTransform,
+      };
+    }
+
+    return null;
+  }
+
+  // Discipline-level reference
+  const relativeTo = discipline.imageTransform?.relativeTo;
+  if (!relativeTo) return null;
+
+  return {
+    src: `/drawings/${relativeTo}`,
+    imageTransform: discipline.imageTransform,
+  };
+};
