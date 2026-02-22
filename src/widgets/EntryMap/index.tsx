@@ -22,13 +22,12 @@ export const EntryMap = ({ setContext }: Props) => {
       polygons={children.map((child) => ({
         vertices: child.position!.vertices,
         stroke: 'rgba(0, 120, 255, 0.8)',
-        fill: 'rgba(0, 120, 255, 0.15)',
+        fill: 'rgba(0, 120, 255, 0.5)',
         strokeWidth: 2,
       }))}
       onPolygonClick={(i) => {
         setContext((prev) => ({ ...prev, activeDrawingId: children[i].id }));
       }}
-      // 다음 단계에서 hit-test 연결
     />
   );
 };

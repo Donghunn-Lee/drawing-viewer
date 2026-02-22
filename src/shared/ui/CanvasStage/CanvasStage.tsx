@@ -76,6 +76,35 @@ export const CanvasStage = ({
 
   const [baseImg, setBaseImg] = useState<HTMLImageElement | null>(null);
   const [overlayImgs, setOverlayImgs] = useState<Record<string, HTMLImageElement>>({});
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const hitTestPolygon = (
+    ctx: CanvasRenderingContext2D,
+    polygons: StagePolygon[],
+    x: number,
+    y: number,
+  ): number | null => {
+    for (let i = polygons.length - 1; i >= 0; i--) {
+      const p = polygons[i];
+      if (!p.vertices || p.vertices.length < 2) continue;
+
+      ctx.save();
+      applyWorldTransform(ctx, p.polygonTransform);
+
+      ctx.beginPath();
+      ctx.moveTo(p.vertices[0][0], p.vertices[0][1]);
+      for (let j = 1; j < p.vertices.length; j++) {
+        ctx.lineTo(p.vertices[j][0], p.vertices[j][1]);
+      }
+      ctx.closePath();
+
+      const hit = ctx.isPointInPath(x, y);
+      ctx.restore();
+
+      if (hit) return i;
+    }
+    return null;
+  };
 
   /** Load base image */
   useEffect(() => {
@@ -159,8 +188,8 @@ export const CanvasStage = ({
     }
 
     // Polygons
-    for (const p of polygons) {
-      if (!p.vertices || p.vertices.length < 2) continue;
+    polygons.forEach((p, index) => {
+      if (!p.vertices || p.vertices.length < 2) return;
 
       ctx.save();
       applyWorldTransform(ctx, p.polygonTransform);
@@ -172,17 +201,18 @@ export const CanvasStage = ({
       }
       ctx.closePath();
 
-      ctx.globalAlpha = p.fillOpacity ?? 1;
+      const isHovered = index === hoveredIndex;
+
       ctx.fillStyle = p.fill ?? 'rgba(0,128,255,0.15)';
+      ctx.globalAlpha = isHovered ? 0.35 : (p.fillOpacity ?? 1);
       ctx.fill();
 
       ctx.strokeStyle = p.stroke ?? 'rgba(0,128,255,0.9)';
-      ctx.lineWidth = p.strokeWidth ?? 2;
+      ctx.lineWidth = isHovered ? 4 : (p.strokeWidth ?? 2);
       ctx.stroke();
 
       ctx.restore();
-    }
-
+    });
     ctx.restore();
   }, [baseImg, overlays, overlayImgs, polygons, computedView, width, height, debug]);
 
@@ -218,7 +248,8 @@ export const CanvasStage = ({
         }
         ctx.closePath();
 
-        const hit = ctx.isPointInPath(wx, wy);
+        const hit = hitTestPolygon(ctx, polygons, wx, wy);
+        if (hit !== null) onPolygonClick(hit);
         ctx.restore();
 
         if (hit) {
@@ -233,6 +264,31 @@ export const CanvasStage = ({
       canvas.removeEventListener('click', handleClick);
     };
   }, [polygons, onPolygonClick, computedView]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !computedView) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const handleMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const wx = (e.clientX - rect.left - computedView.offsetX) / computedView.scale;
+      const wy = (e.clientY - rect.top - computedView.offsetY) / computedView.scale;
+
+      const hit = hitTestPolygon(ctx, polygons, wx, wy);
+      setHoveredIndex(hit);
+    };
+
+    canvas.addEventListener('mousemove', handleMove);
+    canvas.addEventListener('mouseleave', () => setHoveredIndex(null));
+
+    return () => {
+      canvas.removeEventListener('mousemove', handleMove);
+      canvas.removeEventListener('mouseleave', () => setHoveredIndex(null));
+    };
+  }, [polygons, computedView]);
 
   return (
     <canvas
