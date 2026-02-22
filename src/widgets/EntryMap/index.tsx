@@ -25,6 +25,9 @@ export const EntryMap = ({ setContext }: Props) => {
         fill: 'rgba(0, 120, 255, 0.15)',
         strokeWidth: 2,
       }))}
+      onPolygonClick={(i) => {
+        setContext((prev) => ({ ...prev, activeDrawingId: children[i].id }));
+      }}
       // 다음 단계에서 hit-test 연결
     />
   );
