@@ -11,7 +11,7 @@ type Props = {
 export const ContextPanel = ({ context }: Props) => {
   const id = context.activeDrawingId;
   if (!id) {
-    return <div>선택된 도면 없음</div>;
+    return <div>도면을 선택해주세요</div>;
   }
 
   const drawing = metadata.drawings[id];
@@ -19,9 +19,9 @@ export const ContextPanel = ({ context }: Props) => {
 
   return (
     <div>
-      <div>도면: {drawing?.name}</div>
+      <div>도면: {drawing.name}</div>
       <div>공종: {context.activeDiscipline ?? '전체'}</div>
-      <div>리비전: {context.activeRevision ?? 'latest'}</div>
+      <div>리비전: {context.activeRevision ?? 'Latest'}</div>
     </div>
   );
 };
