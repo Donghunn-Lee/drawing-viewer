@@ -4,6 +4,7 @@ import type { Metadata } from '../../shared/types/metadata';
 import metadataJson from '../../data/metadata.json';
 import { getBaseImageSrc, getOverlayImage } from '../../entities/drawing/selectors';
 import { CanvasStage } from '../../shared/ui/CanvasStage';
+import { EntryMap } from '../EntryMap';
 
 const metadata = metadataJson as unknown as Metadata;
 
@@ -81,6 +82,10 @@ export const ViewerPane = ({ context, setContext }: Props) => {
   useEffect(() => {
     setActiveRevision(null);
   }, [activeDiscipline]);
+
+  if (!context.activeDrawingId) {
+    return <EntryMap setContext={setContext} />;
+  }
 
   if (!drawing) {
     return <div style={{ flex: 1, background: '#f5f5f5' }} />;
