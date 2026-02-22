@@ -1,8 +1,9 @@
 import type { Drawing, Metadata } from '../../shared/types/metadata';
 
-type GetBaseImageSrcParams = {
+type GetImageSrcParams = {
   drawing: Drawing;
   activeDiscipline: string | null;
+  activeRegion: string | null;
   activeRevision: string | null;
 };
 
@@ -20,16 +21,49 @@ export const getSiteList = (metadata: Metadata) => {
 export function getBaseImageSrc({
   drawing,
   activeDiscipline,
+  activeRegion,
   activeRevision,
-}: GetBaseImageSrcParams): string {
+}: GetImageSrcParams): string {
   // basic drawing image as default
   if (!activeDiscipline) {
     return `/drawings/${drawing.image}`;
   }
 
   const discipline = drawing.disciplines?.[activeDiscipline];
+
+  // fallback if discipline is invalid
   if (!discipline) {
     return `/drawings/${drawing.image}`;
+  }
+
+  // region-based discipline (e.g. structural drawings)
+  if (discipline.regions && activeRegion) {
+    const region = discipline.regions[activeRegion];
+
+    // fallback if region is invalid
+    if (!region) {
+      return `/drawings/${drawing.image}`;
+    }
+
+    const regionRevisions = region.revisions ?? [];
+
+    // if region revision is selected, use it
+    if (activeRevision) {
+      const selected = regionRevisions.find((r) => r.version === activeRevision);
+      if (selected) {
+        return `/drawings/${selected.image}`;
+      }
+    }
+
+    // if no revision selected, fallback to latest region revision
+    if (regionRevisions.length > 0) {
+      return `/drawings/${regionRevisions[regionRevisions.length - 1].image}`;
+    }
+
+    // if region has no revisions, fallback to discipline image
+    if (discipline.image) {
+      return `/drawings/${discipline.image}`;
+    }
   }
 
   const revisions = discipline.revisions ?? [];
@@ -57,14 +91,44 @@ export function getBaseImageSrc({
 }
 
 // NOTE: overlay always uses architectural reference image
-export function getOverlayImageSrc(drawing: Drawing): string | null {
+export function getOverlayImageSrc({
+  drawing,
+  activeDiscipline,
+  activeRegion,
+  activeRevision,
+}: GetImageSrcParams): string | null {
   const disciplines = drawing.disciplines;
-  if (!disciplines) return null;
+  if (!disciplines || !activeDiscipline) return null;
 
-  // find any discipline that references architectural base
-  const reference = Object.values(disciplines).find((d) => d.imageTransform?.relativeTo);
+  const discipline = disciplines[activeDiscipline];
+  if (!discipline) return null;
 
-  if (!reference?.imageTransform?.relativeTo) return null;
+  // region-based overlay (e.g. structural drawings)
+  if (discipline.regions && activeRegion) {
+    const region = discipline.regions[activeRegion];
+    if (!region) return null;
 
-  return `/drawings/${reference.imageTransform.relativeTo}`;
+    const revisions = region.revisions ?? [];
+
+    // prefer selected region revision reference
+    if (activeRevision) {
+      const selected = revisions.find((r) => r.version === activeRevision);
+      if (selected?.imageTransform?.relativeTo) {
+        return `/drawings/${selected.imageTransform.relativeTo}`;
+      }
+    }
+
+    // fallback to latest region revision reference
+    const latest = revisions[revisions.length - 1];
+    if (latest?.imageTransform?.relativeTo) {
+      return `/drawings/${latest.imageTransform.relativeTo}`;
+    }
+  }
+
+  // discipline-level architectural reference
+  if (discipline.imageTransform?.relativeTo) {
+    return `/drawings/${discipline.imageTransform.relativeTo}`;
+  }
+
+  return null;
 }

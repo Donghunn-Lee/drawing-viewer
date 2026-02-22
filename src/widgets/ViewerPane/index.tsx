@@ -18,6 +18,7 @@ type OverlayState = {
 
 export const ViewerPane = ({ context, setContext }: Props) => {
   const [activeDiscipline, setActiveDiscipline] = useState<string | null>(null);
+  const [activeRegion, setActiveRegion] = useState<string | null>(null);
   const [activeRevision, setActiveRevision] = useState<string | null>(null);
   const [overlay, setOverlay] = useState<OverlayState>({
     enabled: false,
@@ -27,8 +28,9 @@ export const ViewerPane = ({ context, setContext }: Props) => {
   const activeDrawingId = context.activeDrawingId;
   const drawing = activeDrawingId ? metadata.drawings[activeDrawingId] : null;
 
-  const onSelectDiscipline = (discipline: string) => {
+  const selectDiscipline = (discipline: string) => {
     setActiveDiscipline(discipline);
+    setActiveRegion(null);
     setActiveRevision(null);
 
     setContext((prev) => ({
@@ -38,7 +40,17 @@ export const ViewerPane = ({ context, setContext }: Props) => {
     }));
   };
 
-  const onSelectRevision = (revision: string) => {
+  const selectRegion = (region: string) => {
+    setActiveRegion(region);
+    setActiveRevision(null);
+
+    setContext((prev) => ({
+      ...prev,
+      activeRegion: region,
+    }));
+  };
+
+  const selectRevision = (revision: string) => {
     setActiveRevision(revision);
 
     setContext((prev) => ({
@@ -75,12 +87,19 @@ export const ViewerPane = ({ context, setContext }: Props) => {
 
   const disciplines = drawing.disciplines ? Object.keys(drawing.disciplines) : [];
   const disciplineData = activeDiscipline ? drawing.disciplines?.[activeDiscipline] : null;
-  const revisions = disciplineData?.revisions ?? [];
 
-  const baseSrc = getBaseImageSrc({ drawing, activeDiscipline, activeRevision });
-  const overlaySrc = overlay.enabled ? getOverlayImageSrc(drawing) : null;
+  const regions = disciplineData?.regions || null;
+  const regionKeys = regions ? Object.keys(regions) : [];
 
-  console.log(overlaySrc);
+  const revisions =
+    activeRegion && disciplineData?.regions
+      ? (disciplineData.regions[activeRegion]?.revisions ?? [])
+      : (disciplineData?.revisions ?? []);
+
+  const baseSrc = getBaseImageSrc({ drawing, activeDiscipline, activeRegion, activeRevision });
+  const overlaySrc = overlay.enabled
+    ? getOverlayImageSrc({ drawing, activeDiscipline, activeRegion, activeRevision })
+    : null;
 
   return (
     <div>
@@ -96,7 +115,7 @@ export const ViewerPane = ({ context, setContext }: Props) => {
           {disciplines.map((d) => (
             <button
               key={d}
-              onClick={() => onSelectDiscipline(d)}
+              onClick={() => selectDiscipline(d)}
               style={{
                 background: d === activeDiscipline ? '#444' : 'transparent',
                 color: d === activeDiscipline ? '#fff' : '#000',
@@ -106,20 +125,36 @@ export const ViewerPane = ({ context, setContext }: Props) => {
             </button>
           ))}
         </div>
-
-        {activeDiscipline && revisions.length > 0 && (
+        {regionKeys.length > 0 && (
           <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-            {revisions.map((r) => (
+            {regionKeys.map((regionKey) => (
               <button
-                key={r.version}
-                onClick={() => onSelectRevision(r.version)}
+                key={regionKey}
+                onClick={() => selectRegion(regionKey)}
                 style={{
-                  background: r.version === activeRevision ? '#444' : 'transparent',
-                  color: r.version === activeRevision ? '#fff' : '#000',
+                  background: regionKey === activeRegion ? '#444' : 'transparent',
+                  color: regionKey === activeRegion ? '#fff' : '#000',
                   fontSize: 12,
                 }}
               >
-                {r.version}
+                {regionKey}
+              </button>
+            ))}
+          </div>
+        )}
+        {activeDiscipline && revisions.length > 0 && (
+          <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+            {revisions.map((rv) => (
+              <button
+                key={rv.version}
+                onClick={() => selectRevision(rv.version)}
+                style={{
+                  background: rv.version === activeRevision ? '#444' : 'transparent',
+                  color: rv.version === activeRevision ? '#fff' : '#000',
+                  fontSize: 12,
+                }}
+              >
+                {rv.version}
               </button>
             ))}
           </div>
