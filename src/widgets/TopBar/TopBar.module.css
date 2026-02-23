@@ -1,0 +1,26 @@
+.topBar {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 16px;
+  border-bottom: 1px solid #ddd;
+  background: #fff;
+}
+
+.left {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.right {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: #444;
+}
+
+.meta {
+  white-space: nowrap;
+}

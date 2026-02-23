@@ -1,6 +1,13 @@
-.mainLayout {
+.layoutRoot {
   display: flex;
+  flex-direction: column;
   height: 100vh;
+}
+
+.mainRow {
+  flex: 1;
+  display: flex;
+  min-height: 0;
 }
 
 .sidebar {
@@ -12,19 +19,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .context {
   width: 260px;
   border-left: 1px solid #ddd;
-}
-
-@media (max-width: 1024px) {
-  .sidebar {
-    width: 180px;
-  }
-
-  .context {
-    width: 200px;
-  }
 }
