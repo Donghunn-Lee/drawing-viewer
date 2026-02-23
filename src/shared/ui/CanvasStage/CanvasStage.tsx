@@ -234,28 +234,9 @@ export const CanvasStage = ({
       const wx = (e.clientX - rect.left - computedView.offsetX) / computedView.scale;
       const wy = (e.clientY - rect.top - computedView.offsetY) / computedView.scale;
 
-      for (let i = polygons.length - 1; i >= 0; i--) {
-        const p = polygons[i];
-        if (!p.vertices || p.vertices.length < 2) continue;
-
-        ctx.save();
-        applyWorldTransform(ctx, p.polygonTransform);
-
-        ctx.beginPath();
-        ctx.moveTo(p.vertices[0][0], p.vertices[0][1]);
-        for (let j = 1; j < p.vertices.length; j++) {
-          ctx.lineTo(p.vertices[j][0], p.vertices[j][1]);
-        }
-        ctx.closePath();
-
-        const hit = hitTestPolygon(ctx, polygons, wx, wy);
-        if (hit !== null) onPolygonClick(hit);
-        ctx.restore();
-
-        if (hit) {
-          onPolygonClick(i);
-          return;
-        }
+      const hit = hitTestPolygon(ctx, polygons, wx, wy);
+      if (hit !== null) {
+        onPolygonClick(hit);
       }
     };
 
