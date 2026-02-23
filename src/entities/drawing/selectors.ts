@@ -1,4 +1,11 @@
-import type { Drawing, Metadata, Transform } from '../../shared/types/metadata';
+import type {
+  Drawing,
+  Metadata,
+  Transform,
+  Discipline,
+  Revision,
+} from '../../shared/types/metadata';
+import type { ViewerContext } from '../../shared/types/context';
 
 type GetImageSrcParams = {
   drawing: Drawing;
@@ -60,7 +67,8 @@ export function getBaseImageSrc({
       }
     }
 
-    // if no revision selected, fallback to latest region revision
+    // if no revision selected, fallback to last revision
+    // NOTE: rendering fallback only, not domain-level "latest"
     if (regionRevisions.length > 0) {
       return `/drawings/${regionRevisions[regionRevisions.length - 1].image}`;
     }
@@ -81,7 +89,7 @@ export function getBaseImageSrc({
     }
   }
 
-  // if no revision selected, fallback to latest
+  // if no revision selected, fallback to last revision
   if (revisions.length > 0) {
     return `/drawings/${revisions[revisions.length - 1].image}`;
   }
@@ -123,7 +131,7 @@ export function getOverlayImageSrc({
       }
     }
 
-    // fallback to latest region revision reference
+    // fallback to last region revision reference
     const latest = revisions[revisions.length - 1];
     if (latest?.imageTransform?.relativeTo) {
       return `/drawings/${latest.imageTransform.relativeTo}`;
@@ -167,18 +175,18 @@ export const getOverlayImage = ({
       if (relativeTo) {
         return {
           src: `/drawings/${relativeTo}`,
-          imageTransform: selected?.imageTransform,
+          imageTransform: selected.imageTransform,
         };
       }
     }
 
-    // Fallback to latest revision
+    // Fallback to last revision
     const latest = revisions[revisions.length - 1];
     const relativeTo = latest?.imageTransform?.relativeTo;
     if (relativeTo) {
       return {
         src: `/drawings/${relativeTo}`,
-        imageTransform: latest?.imageTransform,
+        imageTransform: latest.imageTransform,
       };
     }
 
@@ -192,5 +200,127 @@ export const getOverlayImage = ({
   return {
     src: `/drawings/${relativeTo}`,
     imageTransform: discipline.imageTransform,
+  };
+};
+
+// -----------------------------------------------------------------------------
+// ContextPanel support selectors
+// -----------------------------------------------------------------------------
+
+type ResolvedRevisionContext =
+  | { kind: 'empty'; message: string }
+  | {
+      kind: 'ok';
+      drawingName: string;
+      disciplineName: string | null;
+      regionName: string | null;
+      selectedRevision: Revision | null;
+      latestRevision: Revision | null;
+      message?: string;
+    };
+
+// NOTE: metadata date is treated as the only reliable "latest" signal
+const parseDate = (date: string) => {
+  const d = new Date(date);
+  return Number.isNaN(d.getTime()) ? null : d.getTime();
+};
+
+// NOTE: used for context display, not for rendering fallback
+const getLatestByDate = (revisions: Revision[]): Revision | null => {
+  if (revisions.length === 0) return null;
+
+  return [...revisions].sort((a, b) => {
+    return (parseDate(b.date) ?? -Infinity) - (parseDate(a.date) ?? -Infinity);
+  })[0];
+};
+
+export const resolveRevisionContext = (
+  metadata: Metadata,
+  context: ViewerContext,
+): ResolvedRevisionContext => {
+  const { activeDrawingId, activeDiscipline, activeRegion, activeRevision } = context;
+
+  if (!activeDrawingId) {
+    return { kind: 'empty', message: '도면을 선택해주세요.' };
+  }
+
+  const drawing = metadata.drawings[activeDrawingId];
+  if (!drawing) {
+    return { kind: 'empty', message: '도면 정보를 찾을 수 없습니다.' };
+  }
+
+  if (!activeDiscipline) {
+    return {
+      kind: 'ok',
+      drawingName: drawing.name,
+      disciplineName: null,
+      regionName: null,
+      selectedRevision: null,
+      latestRevision: null,
+      message: '공종을 선택하면 리비전 정보를 확인할 수 있습니다.',
+    };
+  }
+
+  const discipline: Discipline | undefined = drawing.disciplines?.[activeDiscipline];
+  if (!discipline) {
+    return {
+      kind: 'ok',
+      drawingName: drawing.name,
+      disciplineName: activeDiscipline,
+      regionName: null,
+      selectedRevision: null,
+      latestRevision: null,
+      message: '해당 공종 데이터가 없습니다.',
+    };
+  }
+
+  // region-based discipline (structural drawings)
+  if (discipline.regions) {
+    if (!activeRegion) {
+      return {
+        kind: 'ok',
+        drawingName: drawing.name,
+        disciplineName: activeDiscipline,
+        regionName: null,
+        selectedRevision: null,
+        latestRevision: null,
+        message: 'Region이 있는 공종입니다. Region을 선택해주세요.',
+      };
+    }
+
+    const region = discipline.regions[activeRegion];
+    const revisions = region?.revisions ?? [];
+
+    const latest = getLatestByDate(revisions);
+    const selected =
+      !activeRevision || activeRevision === 'Latest'
+        ? latest
+        : (revisions.find((r) => r.version === activeRevision) ?? latest);
+
+    return {
+      kind: 'ok',
+      drawingName: drawing.name,
+      disciplineName: activeDiscipline,
+      regionName: activeRegion,
+      selectedRevision: selected,
+      latestRevision: latest,
+    };
+  }
+
+  // non-region discipline
+  const revisions = discipline.revisions ?? [];
+  const latest = getLatestByDate(revisions);
+  const selected =
+    !activeRevision || activeRevision === 'Latest'
+      ? latest
+      : (revisions.find((r) => r.version === activeRevision) ?? latest);
+
+  return {
+    kind: 'ok',
+    drawingName: drawing.name,
+    disciplineName: activeDiscipline,
+    regionName: null,
+    selectedRevision: selected,
+    latestRevision: latest,
   };
 };
