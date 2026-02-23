@@ -6,7 +6,8 @@
 
   padding: 0 16px;
   border-bottom: 1px solid #ddd;
-  background: #fff;
+  background: #000;
+  width: transparent;
 }
 
 .left {
@@ -23,4 +24,18 @@
 
 .meta {
   white-space: nowrap;
+}
+
+.contextButton {
+  background: transparent;
+  border: 1px solid #ddd;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* Desktop: hide button */
+@media (min-width: 1025px) {
+  .contextButton {
+    display: none;
+  }
 }

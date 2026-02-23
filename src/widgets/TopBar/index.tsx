@@ -9,39 +9,22 @@ const metadata = metadataJson as unknown as Metadata;
 
 type Props = {
   context: ViewerContext;
+  onToggleContext?: () => void;
 };
 
-export const TopBar = ({ context }: Props) => {
+export const TopBar = ({ context, onToggleContext }: Props) => {
   const resolved = resolveRevisionContext(metadata, context);
-
-  if (resolved.kind !== 'ok') {
-    return <div className={styles.topBar}>No drawing selected</div>;
-  }
-
-  const { drawingName, disciplineName, regionName, selectedRevision, latestRevision } = resolved;
 
   return (
     <div className={styles.topBar}>
       <div className={styles.left}>
-        <span className={styles.drawing}>{drawingName}</span>
+        {resolved.kind === 'ok' ? resolved.drawingName : 'No drawing'}
       </div>
 
       <div className={styles.right}>
-        {disciplineName && (
-          <span className={styles.meta}>
-            {disciplineName}
-            {regionName ? ` / ${regionName}` : ''}
-          </span>
-        )}
-
-        {selectedRevision && (
-          <span className={styles.meta}>
-            {selectedRevision.version}
-            {latestRevision && selectedRevision.version !== latestRevision.version
-              ? ` (Latest: ${latestRevision.version})`
-              : ''}
-          </span>
-        )}
+        <button className={styles.contextButton} onClick={onToggleContext}>
+          Context
+        </button>
       </div>
     </div>
   );

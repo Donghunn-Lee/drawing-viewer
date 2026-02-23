@@ -5,6 +5,7 @@ import { ContextPanel } from '../../widgets/ContextPanel';
 import { TopBar } from '../../widgets/TopBar';
 
 import styles from '../layout/MainLayout.module.css';
+import { useState } from 'react';
 
 type Props = {
   context: ViewerContext;
@@ -12,9 +13,11 @@ type Props = {
 };
 
 export function MainLayout({ context, setContext }: Props) {
+  const [showContext, setShowContext] = useState(false);
+
   return (
     <div className={styles.layoutRoot}>
-      <TopBar context={context} />
+      <TopBar context={context} onToggleContext={() => setShowContext((v) => !v)} />
 
       <div className={styles.mainRow}>
         <aside className={styles.sidebar}>
@@ -25,7 +28,7 @@ export function MainLayout({ context, setContext }: Props) {
           <ViewerPane context={context} setContext={setContext} />
         </main>
 
-        <aside className={styles.context}>
+        <aside className={`${styles.context} ${showContext ? styles.contextVisible : ''}`}>
           <ContextPanel context={context} />
         </aside>
       </div>
