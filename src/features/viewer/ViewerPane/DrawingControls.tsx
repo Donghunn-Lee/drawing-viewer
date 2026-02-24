@@ -1,6 +1,5 @@
 import type { Drawing } from '../../../shared/types/metadata';
 import type { ViewerContext } from '../../../shared/types/context';
-import { useEffect } from 'react';
 
 type Props = {
   drawing: Drawing;
@@ -11,31 +10,6 @@ type Props = {
 export const DrawingControls = ({ drawing, context, setContext }: Props) => {
   const disciplines = drawing.disciplines ? Object.keys(drawing.disciplines) : [];
 
-  useEffect(() => {
-    setContext((prev) => ({
-      ...prev,
-      activeDiscipline: null,
-      activeRegion: null,
-      activeRevision: null,
-      overlay: {
-        ...prev.overlay,
-        enabled: false,
-      },
-    }));
-  }, [drawing.id, setContext]);
-
-  useEffect(() => {
-    if (!context.activeDiscipline) return;
-    if (drawing.disciplines?.[context.activeDiscipline]) return;
-
-    setContext((prev) => ({
-      ...prev,
-      activeDiscipline: null,
-      activeRegion: null,
-      activeRevision: null,
-    }));
-  }, [context.activeDiscipline, drawing, setContext]);
-
   const disciplineData = context.activeDiscipline
     ? drawing.disciplines?.[context.activeDiscipline]
     : null;
@@ -43,122 +17,148 @@ export const DrawingControls = ({ drawing, context, setContext }: Props) => {
   const regions = disciplineData?.regions ?? null;
   const regionKeys = regions ? Object.keys(regions) : [];
 
-  useEffect(() => {
-    if (!context.activeDiscipline) {
-      if (context.activeRegion === null && context.activeRevision === null) return;
-    }
-
-    setContext((prev) => ({
-      ...prev,
-      activeRegion: null,
-      activeRevision: null,
-    }));
-  }, [context.activeDiscipline]);
-
-  useEffect(() => {
-    if (!context.activeRegion) return;
-    if (!disciplineData?.regions?.[context.activeRegion]) {
-      setContext((prev) => ({
-        ...prev,
-        activeRegion: null,
-        activeRevision: null,
-      }));
-    }
-  }, [context.activeRegion, disciplineData, setContext]);
-
   const revisions =
     context.activeRegion && disciplineData?.regions
       ? (disciplineData.regions[context.activeRegion]?.revisions ?? [])
       : (disciplineData?.revisions ?? []);
-
-  useEffect(() => {
-    if (!context.activeRevision) return;
-    const exists = revisions.some((rv) => rv.version === context.activeRevision);
-    if (exists) return;
-
-    setContext((prev) => ({
-      ...prev,
-      activeRevision: null,
-    }));
-  }, [context.activeRevision, revisions, setContext]);
 
   const toggleOverlay = () => {
     setContext((prev) => ({
       ...prev,
       overlay: {
         ...prev.overlay,
-        enabled: !prev.overlay.enabled,
+        enabled: !prev.overlay?.enabled,
       },
     }));
   };
 
+  const onChangeDiscipline = (value: string) => {
+    const next = value === '__none__' ? null : value;
+    setContext((prev) => ({
+      ...prev,
+      activeDiscipline: next,
+      activeRegion: null,
+      activeRevision: null,
+    }));
+  };
+
+  const onChangeRegion = (value: string) => {
+    const next = value === '__none__' ? null : value;
+    setContext((prev) => ({
+      ...prev,
+      activeRegion: next,
+      activeRevision: null,
+    }));
+  };
+
+  const onChangeRevision = (value: string) => {
+    const next = value === '__none__' ? null : value;
+    setContext((prev) => ({
+      ...prev,
+      activeRevision: next,
+    }));
+  };
+
+  const sortedRevisions = [...revisions].sort((a, b) => {
+    // REV2 > REV1 같은 케이스 대응
+    const getNum = (v: string) => {
+      const m = v.match(/\d+/);
+      return m ? Number(m[0]) : 0;
+    };
+    return getNum(b.version) - getNum(a.version);
+  });
+
+  const overlayEnabled = Boolean(context.overlay?.enabled);
+
   return (
-    <div style={{ padding: 8, borderBottom: '1px solid #ddd' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+        padding: '8px 0',
+      }}
+    >
       {/* overlay toggle */}
-      <div style={{ marginBottom: 8 }}>
-        <label>
-          <input type="checkbox" checked={context.overlay.enabled} onChange={toggleOverlay} />
-          Show architectural reference
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <input type="checkbox" checked={overlayEnabled} onChange={toggleOverlay} />
+        Show architectural reference
+      </label>
+
+      {/* selects row */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          flexWrap: 'wrap',
+        }}
+      >
+        {/* Discipline */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ opacity: 0.8, fontSize: 12 }}>공종</span>
+          <select
+            value={context.activeDiscipline ?? '__none__'}
+            onChange={(e) => onChangeDiscipline(e.target.value)}
+            style={{ height: 32 }}
+          >
+            <option value="__none__">전체</option>
+            {disciplines.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* Region (only when available) */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ opacity: 0.8, fontSize: 12 }}>구역</span>
+          <select
+            value={context.activeRegion ?? '__none__'}
+            onChange={(e) => onChangeRegion(e.target.value)}
+            disabled={regionKeys.length === 0}
+            style={{ height: 32, opacity: regionKeys.length === 0 ? 0.5 : 1 }}
+          >
+            {regionKeys.length === 0 ? (
+              <option value="__none__">해당 없음</option>
+            ) : (
+              <>
+                <option value="__none__">전체</option>
+                {regionKeys.map((rk) => (
+                  <option key={rk} value={rk}>
+                    {rk}
+                  </option>
+                ))}
+              </>
+            )}
+          </select>
+        </label>
+
+        {/* Revision (only when available) */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ opacity: 0.8, fontSize: 12 }}>리비전</span>
+          <select
+            value={context.activeRevision ?? '__none__'}
+            onChange={(e) => onChangeRevision(e.target.value)}
+            disabled={sortedRevisions.length === 0}
+            style={{ height: 32, opacity: sortedRevisions.length === 0 ? 0.5 : 1 }}
+          >
+            {revisions.length === 0 ? (
+              <option value="__none__">선택 불가</option>
+            ) : (
+              <>
+                {sortedRevisions.map((rv, index) => (
+                  <option key={rv.version} value={rv.version}>
+                    {rv.version}
+                    {index === 0 ? ' (최신)' : ''}
+                  </option>
+                ))}
+              </>
+            )}
+          </select>
         </label>
       </div>
-
-      {/* discipline */}
-      <div style={{ display: 'flex', gap: 8 }}>
-        {disciplines.map((d) => (
-          <button
-            key={d}
-            onClick={() =>
-              setContext((prev) => ({
-                ...prev,
-                activeDiscipline: d,
-                activeRegion: null,
-                activeRevision: null,
-              }))
-            }
-          >
-            {d}
-          </button>
-        ))}
-      </div>
-
-      {/* region */}
-      {regionKeys.length > 0 && (
-        <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-          {regionKeys.map((rk) => (
-            <button
-              key={rk}
-              onClick={() =>
-                setContext((prev) => ({
-                  ...prev,
-                  activeRegion: rk,
-                  activeRevision: null,
-                }))
-              }
-            >
-              {rk}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* revision */}
-      {revisions.length > 0 && (
-        <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-          {revisions.map((rv) => (
-            <button
-              key={rv.version}
-              onClick={() =>
-                setContext((prev) => ({
-                  ...prev,
-                  activeRevision: rv.version,
-                }))
-              }
-            >
-              {rv.version}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
