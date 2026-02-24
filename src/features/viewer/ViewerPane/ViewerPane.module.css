@@ -1,23 +1,75 @@
-.viewerRoot {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
-
-.controlSurface {
-  display: flex;
+.surfaceTop {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
+
   padding: 12px 16px;
   border-bottom: 1px solid #2a2a2a;
+  background: #1a1a1a;
+}
+
+.surfaceSide {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 12px 16px;
+  border-bottom: 1px solid #2a2a2a;
+  background: #1a1a1a;
+}
+
+.contextCard {
   background: #1f1f1f;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 12px 14px;
+
+  display: grid;
+  grid-auto-rows: minmax(28px, auto);
+  row-gap: 8px;
 }
 
-.controlBlock {
-  flex: 0 0 auto;
+.controlCell {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  column-gap: 12px;
 }
 
-.contextBlock {
+.label {
+  font-size: 12px;
+  color: #bdbdbd;
+  white-space: nowrap;
+}
+
+.value {
+  font-size: 13px;
+  color: #eaeaea;
+}
+
+.controlCell select {
+  height: 28px;
+  padding: 0 8px;
+
+  background: #2a2a2a;
+  color: #eaeaea;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+}
+
+.checkbox input {
+  cursor: pointer;
+}
+
+.canvasWrapper {
   flex: 1;
-  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
 }

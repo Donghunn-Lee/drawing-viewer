@@ -1,24 +1,31 @@
 import { useMemo } from 'react';
 import type { ViewerContext } from '../../../shared/types/context';
-import metadataJson from '../../../data/metadata.json';
 import type { Metadata } from '../../../shared/types/metadata';
 
-import { DrawingControls } from './DrawingControls';
+import metadataJson from '../../../data/metadata.json';
+
 import { DrawingCanvas } from './DrawingCanvas';
 import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
-import { ContextPanel } from './ContextPanel';
 
-import styles from '../ViewerPane/ViewerPane.module.css';
+import { ViewerContextSurface } from './ViewerContextSurface';
+import { ViewerSelectSection } from './sections/ViewerSelectSection';
+import { ViewerContextSection } from './sections/ViewerContextSections';
+import { GridSurface } from './layout/GridSurface';
+import { useViewerDerivedState } from './hooks/useViewerDerivedState';
+
+import styles from './ViewerPane.module.css';
+import { ContextCard } from './layout/ContextCard';
 
 const metadata = metadataJson as unknown as Metadata;
 
 type Props = {
   context: ViewerContext;
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
+  layout?: 'top' | 'side';
 };
 
-export const ViewerPane = ({ context, setContext }: Props) => {
-  const root = useMemo(
+export const ViewerPane = ({ context, setContext, layout = 'top' }: Props) => {
+  const rootDrawing = useMemo(
     () => Object.values(metadata.drawings).find((d) => d.parent === null) ?? null,
     [],
   );
@@ -28,30 +35,31 @@ export const ViewerPane = ({ context, setContext }: Props) => {
     return metadata.drawings[context.activeDrawingId] ?? null;
   }, [context.activeDrawingId]);
 
-  const drawingForView = activeDrawing ?? root;
+  const drawingForView = activeDrawing ?? rootDrawing;
 
-  const baseSrc = drawingForView
-    ? getBaseImageSrc({
-        drawing: drawingForView,
-        activeDiscipline: context.activeDiscipline,
-        activeRegion: context.activeRegion,
-        activeRevision: context.activeRevision,
-      })
-    : null;
+  const derived = useViewerDerivedState(context, drawingForView);
+
+  const baseSrc =
+    drawingForView &&
+    getBaseImageSrc({
+      drawing: drawingForView,
+      activeDiscipline: derived.normalized.discipline,
+      activeRegion: derived.normalized.region,
+      activeRevision: derived.normalized.revision,
+    });
 
   const overlayInfo =
-    context.overlay.enabled && drawingForView
+    derived.normalized.overlay.enabled && drawingForView
       ? getOverlayImage({
           drawing: drawingForView,
-          activeDiscipline: context.activeDiscipline,
-          activeRegion: context.activeRegion,
-          activeRevision: context.activeRevision,
+          activeDiscipline: derived.normalized.discipline,
+          activeRegion: derived.normalized.region,
+          activeRevision: derived.normalized.revision,
         })
       : null;
 
   const polygons = useMemo(() => {
     if (!drawingForView || drawingForView.parent !== null) return [];
-
     return Object.values(metadata.drawings)
       .filter((d) => d.parent === drawingForView.id && d.position)
       .map((child) => ({
@@ -83,20 +91,36 @@ export const ViewerPane = ({ context, setContext }: Props) => {
 
   return (
     <div className={styles.viewerRoot}>
-      {/* Control Surface  */}
       {drawingForView?.disciplines && (
-        <div className={styles.controlSurface}>
-          <div className={styles.contextBlock}>
-            <DrawingControls drawing={drawingForView} context={context} setContext={setContext} />
-          </div>
+        <ViewerContextSurface layout={layout}>
+          {layout === 'top' ? (
+            <>
+              <ContextCard>
+                <GridSurface rows={4}>
+                  <ViewerSelectSection state={derived} setContext={setContext} />
+                </GridSurface>
+              </ContextCard>
 
-          <div className={styles.contextBlock}>
-            <ContextPanel context={context} />
-          </div>
-        </div>
+              <ContextCard>
+                <GridSurface rows={4}>
+                  <ViewerContextSection context={context} revision={derived.activeRevisionData} />
+                </GridSurface>
+              </ContextCard>
+            </>
+          ) : (
+            <>
+              <ContextCard>
+                <ViewerSelectSection state={derived} setContext={setContext} />
+              </ContextCard>
+
+              <ContextCard>
+                <ViewerContextSection context={context} revision={derived.activeRevisionData} />
+              </ContextCard>
+            </>
+          )}
+        </ViewerContextSurface>
       )}
 
-      {/* Canvas */}
       <div
         style={{
           flex: 1,
