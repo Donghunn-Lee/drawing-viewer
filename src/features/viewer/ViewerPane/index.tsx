@@ -8,6 +8,8 @@ import { DrawingCanvas } from './DrawingCanvas';
 import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
 import { ContextPanel } from './ContextPanel';
 
+import styles from '../ViewerPane/ViewerPane.module.css';
+
 const metadata = metadataJson as unknown as Metadata;
 
 type Props = {
@@ -80,17 +82,10 @@ export const ViewerPane = ({ context, setContext }: Props) => {
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        minHeight: 0,
-      }}
-    >
+    <div className={styles.viewerRoot}>
       {/* Control Surface  */}
       {drawingForView?.disciplines && (
-        <div>
+        <div className={styles.controlSurface}>
           <DrawingControls drawing={drawingForView} context={context} setContext={setContext} />
           <ContextPanel context={context} />
         </div>
