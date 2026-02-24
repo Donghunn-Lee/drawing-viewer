@@ -1,8 +1,8 @@
 import type { ViewerContext } from '../../shared/types/context';
-import { ExplorerSidebar } from '../../widgets/ExplorerSidebar';
-import { ViewerPane } from '../../widgets/ViewerPane';
-import { ContextPanel } from '../../widgets/ContextPanel';
-import { TopBar } from '../../widgets/TopBar';
+import { ExplorerSidebar } from '../../features/navigation/ExplorerSidebar';
+import { ViewerPane } from '../../features/viewer/ViewerPane';
+import { ContextPanel } from '../../features/viewer/ContextPanel';
+import { TopBar } from './TopBar';
 
 import styles from '../layout/MainLayout.module.css';
 import { useState } from 'react';

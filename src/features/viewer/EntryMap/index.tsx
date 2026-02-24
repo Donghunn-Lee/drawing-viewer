@@ -1,6 +1,6 @@
-import { CanvasStage } from '../../shared/ui/CanvasStage';
-import metadata from '../../data/metadata.json';
-import type { ViewerContext } from '../../shared/types/context';
+import { CanvasStage } from '../../../shared/ui/CanvasStage';
+import metadata from '../../../data/metadata.json';
+import type { ViewerContext } from '../../../shared/types/context';
 
 type Props = {
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;

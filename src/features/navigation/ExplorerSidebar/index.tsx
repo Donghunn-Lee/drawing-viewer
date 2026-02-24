@@ -1,6 +1,6 @@
-import { getSiteList } from '../../entities/drawing/selectors';
-import type { ViewerContext } from '../../shared/types/context';
-import metadata from '../../data/metadata.json';
+import { getSiteList } from '../../../entities/drawing/selectors';
+import type { ViewerContext } from '../../../shared/types/context';
+import metadata from '../../../data/metadata.json';
 
 type Props = {
   activeDrawingId: ViewerContext['activeDrawingId'];

@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import type { ViewerContext } from '../../shared/types/context';
-import metadataJson from '../../data/metadata.json';
-import type { Metadata } from '../../shared/types/metadata';
+import type { ViewerContext } from '../../../shared/types/context';
+import metadataJson from '../../../data/metadata.json';
+import type { Metadata } from '../../../shared/types/metadata';
 
 import { DrawingControls } from './DrawingControls';
 import { DrawingCanvas } from './DrawingCanvas';
-import { getBaseImageSrc, getOverlayImage } from '../../entities/drawing/selectors';
+import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
 
 const metadata = metadataJson as unknown as Metadata;
 

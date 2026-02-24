@@ -1,5 +1,5 @@
-import { CanvasStage } from '../../shared/ui/CanvasStage';
-import type { Polygon, Transform } from '../../shared/types/metadata';
+import { CanvasStage } from '../../../shared/ui/CanvasStage';
+import type { Polygon, Transform } from '../../../shared/types/metadata';
 
 type Props = {
   baseSrc: string;

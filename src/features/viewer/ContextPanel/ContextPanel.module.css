@@ -1,7 +1,7 @@
 .panel {
   height: 100%;
   padding: 16px;
-  background: #2f2f2f; /* #444 → 톤 다운 */
+  background: #2f2f2f;
   color: #eaeaea;
   overflow-y: auto;
 }

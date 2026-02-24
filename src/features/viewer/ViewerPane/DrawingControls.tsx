@@ -1,5 +1,5 @@
-import type { Drawing } from '../../shared/types/metadata';
-import type { ViewerContext } from '../../shared/types/context';
+import type { Drawing } from '../../../shared/types/metadata';
+import type { ViewerContext } from '../../../shared/types/context';
 import { useEffect } from 'react';
 
 type Props = {
