@@ -8,6 +8,11 @@ export default function App() {
     activeDiscipline: null,
     activeRegion: null,
     activeRevision: null,
+    overlay: {
+      enabled: false,
+      targets: [],
+      opacity: 0.5,
+    },
   });
 
   return <MainLayout context={viewerContext} setContext={setViewerContext} />;

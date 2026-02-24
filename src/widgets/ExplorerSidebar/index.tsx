@@ -11,7 +11,7 @@ export const ExplorerSidebar = ({ setContext, activeDrawingId }: Props) => {
   const sites = getSiteList(metadata);
 
   const selectDrawing = (drawingId: string) => {
-    setContext({ activeDrawingId: drawingId });
+    setContext((prev) => ({ ...prev, activeDrawingId: drawingId }));
   };
 
   return (
