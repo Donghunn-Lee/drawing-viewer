@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Polygon as MetaPolygon, Transform } from '../../types/metadata';
 
 type StageOverlay = {
@@ -15,20 +15,15 @@ type StagePolygon = MetaPolygon & {
 };
 
 export type CanvasStageProps = {
-  width: number;
-  height: number;
   baseSrc: string;
-
   overlays?: StageOverlay[];
   polygons?: StagePolygon[];
   onPolygonClick?: (index: number) => void;
-
   view?: {
     scale: number;
     offsetX: number;
     offsetY: number;
   };
-
   debug?: boolean;
 };
 
@@ -63,8 +58,6 @@ const calcContainView = (baseW: number, baseH: number, viewportW: number, viewpo
 };
 
 export const CanvasStage = ({
-  width,
-  height,
   baseSrc,
   overlays = [],
   polygons = [],
@@ -73,7 +66,9 @@ export const CanvasStage = ({
   debug = false,
 }: CanvasStageProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
+  const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const [baseImg, setBaseImg] = useState<HTMLImageElement | null>(null);
   const [overlayImgs, setOverlayImgs] = useState<Record<string, HTMLImageElement>>({});
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -105,6 +100,22 @@ export const CanvasStage = ({
     }
     return null;
   };
+  /** adjust canvas container */
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setViewport({
+        width: Math.floor(width),
+        height: Math.floor(height),
+      });
+    });
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   /** Load base image */
   useEffect(() => {
@@ -148,9 +159,9 @@ export const CanvasStage = ({
   }, [overlays]);
 
   const computedView = useMemo(() => {
-    if (!baseImg) return null;
-    return view ?? calcContainView(baseImg.width, baseImg.height, width, height);
-  }, [baseImg, view, width, height]);
+    if (!baseImg || viewport.width === 0 || viewport.height === 0) return null;
+    return view ?? calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height);
+  }, [baseImg, view, viewport]);
 
   /**
    * DRAW
@@ -159,6 +170,9 @@ export const CanvasStage = ({
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx || !baseImg || !computedView) return;
+
+    const { width, height } = viewport;
+    if (!width || !height) return;
 
     const dpr = window.devicePixelRatio || 1;
     canvas.width = Math.floor(width * dpr);
@@ -214,7 +228,7 @@ export const CanvasStage = ({
       ctx.restore();
     });
     ctx.restore();
-  }, [baseImg, overlays, overlayImgs, polygons, computedView, width, height, debug]);
+  }, [baseImg, overlays, overlayImgs, polygons, computedView, debug, viewport]);
 
   /**
    * HIT TEST (click)
@@ -272,14 +286,24 @@ export const CanvasStage = ({
   }, [polygons, computedView]);
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
+      ref={containerRef}
       style={{
-        display: 'block',
-        background: '#f5f5f5',
-        width,
-        height,
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        overflow: 'hidden',
       }}
-    />
+    >
+      <canvas
+        ref={canvasRef}
+        style={{
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          background: '#f5f5f5',
+        }}
+      />
+    </div>
   );
 };

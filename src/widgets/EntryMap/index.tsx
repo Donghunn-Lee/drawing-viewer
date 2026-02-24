@@ -15,19 +15,28 @@ export const EntryMap = ({ setContext }: Props) => {
   );
 
   return (
-    <CanvasStage
-      width={900}
-      height={600}
-      baseSrc={`/drawings/${root.image}`}
-      polygons={children.map((child) => ({
-        vertices: child.position!.vertices,
-        stroke: 'rgba(0, 120, 255, 0.8)',
-        fill: 'rgba(0, 120, 255, 0.5)',
-        strokeWidth: 2,
-      }))}
-      onPolygonClick={(i) => {
-        setContext((prev) => ({ ...prev, activeDrawingId: children[i].id }));
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
       }}
-    />
+    >
+      <CanvasStage
+        baseSrc={`/drawings/${root.image}`}
+        polygons={children.map((child) => ({
+          vertices: child.position!.vertices,
+          stroke: 'rgba(0, 120, 255, 0.8)',
+          fill: 'rgba(0, 120, 255, 0.5)',
+          strokeWidth: 2,
+        }))}
+        onPolygonClick={(i) => {
+          setContext((prev) => ({
+            ...prev,
+            activeDrawingId: children[i].id,
+          }));
+        }}
+      />
+    </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Drawing } from '../../shared/types/metadata';
 import type { ViewerContext } from '../../shared/types/context';
 import { getBaseImageSrc, getOverlayImage } from '../../entities/drawing/selectors';
@@ -16,8 +16,6 @@ type OverlayState = {
 };
 
 export const DrawingViewer = ({ drawing, setContext }: Props) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
   const [activeDiscipline, setActiveDiscipline] = useState<string | null>(null);
   const [activeRegion, setActiveRegion] = useState<string | null>(null);
   const [activeRevision, setActiveRevision] = useState<string | null>(null);
@@ -26,8 +24,6 @@ export const DrawingViewer = ({ drawing, setContext }: Props) => {
     enabled: false,
     opacity: 0.5,
   });
-
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
   const selectDiscipline = (discipline: string) => {
     setActiveDiscipline(discipline);
@@ -92,26 +88,6 @@ export const DrawingViewer = ({ drawing, setContext }: Props) => {
       activeRevision: null,
     }));
   }, [activeDiscipline]);
-
-  useLayoutEffect(() => {
-    if (!containerRef.current) return;
-
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-
-      setContainerSize((prev) =>
-        prev.width === Math.floor(width) && prev.height === Math.floor(height)
-          ? prev
-          : {
-              width: Math.floor(width),
-              height: Math.floor(height),
-            },
-      );
-    });
-
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   const disciplines = drawing.disciplines ? Object.keys(drawing.disciplines) : [];
   const disciplineData = activeDiscipline ? drawing.disciplines?.[activeDiscipline] : null;
@@ -224,7 +200,6 @@ export const DrawingViewer = ({ drawing, setContext }: Props) => {
 
       {/* canvas area */}
       <div
-        ref={containerRef}
         style={{
           flex: 1,
           minHeight: 0,
@@ -232,15 +207,7 @@ export const DrawingViewer = ({ drawing, setContext }: Props) => {
           overflow: 'hidden',
         }}
       >
-        {containerSize.width > 0 && containerSize.height > 0 && (
-          <CanvasStage
-            width={containerSize.width}
-            height={containerSize.height}
-            baseSrc={stageBaseSrc}
-            overlays={stageOverlays}
-            polygons={[]}
-          />
-        )}
+        <CanvasStage baseSrc={stageBaseSrc} overlays={stageOverlays} polygons={[]} />
       </div>
     </div>
   );
