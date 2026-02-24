@@ -2,7 +2,9 @@ import { ControlSelectCell } from '../cells/ControlSelectCell';
 import { ControlCheckboxCell } from '../cells/ControlcheckboxCell';
 
 export const ViewerSelectSection = ({ state, setContext }: any) => {
-  const { normalized, options, availability } = state;
+  const { normalized, options, availability, activeRevisionData } = state;
+
+  const revisionSelectValue = normalized.revision ?? activeRevisionData?.version ?? null;
 
   return (
     <>
@@ -36,7 +38,7 @@ export const ViewerSelectSection = ({ state, setContext }: any) => {
 
       <ControlSelectCell
         label="리비전"
-        value={normalized.revision}
+        value={revisionSelectValue}
         options={options.revision}
         disabled={!availability.revision}
         onChange={(v) => setContext((p: any) => ({ ...p, activeRevision: v }))}
