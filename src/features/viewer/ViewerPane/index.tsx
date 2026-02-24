@@ -86,8 +86,13 @@ export const ViewerPane = ({ context, setContext }: Props) => {
       {/* Control Surface  */}
       {drawingForView?.disciplines && (
         <div className={styles.controlSurface}>
-          <DrawingControls drawing={drawingForView} context={context} setContext={setContext} />
-          <ContextPanel context={context} />
+          <div className={styles.contextBlock}>
+            <DrawingControls drawing={drawingForView} context={context} setContext={setContext} />
+          </div>
+
+          <div className={styles.contextBlock}>
+            <ContextPanel context={context} />
+          </div>
         </div>
       )}
 

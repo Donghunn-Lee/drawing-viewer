@@ -13,4 +13,11 @@
   background: #1f1f1f;
 }
 
-/* 일단 단순히 위아래만 */
+.controlBlock {
+  flex: 0 0 auto;
+}
+
+.contextBlock {
+  flex: 1;
+  min-width: 0;
+}
