@@ -1,7 +1,6 @@
 import type { ViewerContext } from '../../shared/types/context';
 import { ExplorerSidebar } from '../../features/navigation/ExplorerSidebar';
 import { ViewerPane } from '../../features/viewer/ViewerPane';
-import { ContextPanel } from '../../features/viewer/ContextPanel';
 import { TopBar } from './TopBar';
 
 import styles from '../layout/MainLayout.module.css';
@@ -27,10 +26,6 @@ export function MainLayout({ context, setContext }: Props) {
         <main className={styles.viewer}>
           <ViewerPane context={context} setContext={setContext} />
         </main>
-
-        <aside className={`${styles.context} ${showContext ? styles.contextVisible : ''}`}>
-          <ContextPanel context={context} />
-        </aside>
       </div>
     </div>
   );

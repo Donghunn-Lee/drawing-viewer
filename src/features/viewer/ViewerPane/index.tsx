@@ -6,6 +6,7 @@ import type { Metadata } from '../../../shared/types/metadata';
 import { DrawingControls } from './DrawingControls';
 import { DrawingCanvas } from './DrawingCanvas';
 import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
+import { ContextPanel } from './ContextPanel';
 
 const metadata = metadataJson as unknown as Metadata;
 
@@ -87,9 +88,12 @@ export const ViewerPane = ({ context, setContext }: Props) => {
         minHeight: 0,
       }}
     >
-      {/* Controls: drawing에 discipline이 있을 때만 */}
+      {/* Control Surface  */}
       {drawingForView?.disciplines && (
-        <DrawingControls drawing={drawingForView} context={context} setContext={setContext} />
+        <div>
+          <DrawingControls drawing={drawingForView} context={context} setContext={setContext} />
+          <ContextPanel context={context} />
+        </div>
       )}
 
       {/* Canvas */}

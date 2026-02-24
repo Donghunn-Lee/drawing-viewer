@@ -11,7 +11,6 @@ type Props = {
 export const DrawingControls = ({ drawing, context, setContext }: Props) => {
   const disciplines = drawing.disciplines ? Object.keys(drawing.disciplines) : [];
 
-  // 1) drawing 변경 시: 선택 상태 초기화 (이전 DrawingViewer의 [drawing.id] 효과 복구)
   useEffect(() => {
     setContext((prev) => ({
       ...prev,
@@ -20,12 +19,11 @@ export const DrawingControls = ({ drawing, context, setContext }: Props) => {
       activeRevision: null,
       overlay: {
         ...prev.overlay,
-        enabled: false, // drawing 전환 시 overlay off (기존 동작 유지)
+        enabled: false,
       },
     }));
   }, [drawing.id, setContext]);
 
-  // 현재 선택 discipline이 drawing에 존재하지 않으면 null로 정리
   useEffect(() => {
     if (!context.activeDiscipline) return;
     if (drawing.disciplines?.[context.activeDiscipline]) return;
@@ -45,9 +43,7 @@ export const DrawingControls = ({ drawing, context, setContext }: Props) => {
   const regions = disciplineData?.regions ?? null;
   const regionKeys = regions ? Object.keys(regions) : [];
 
-  // 2) discipline 변경 시: region/revision 초기화 (이전 DrawingViewer의 [activeDiscipline] 효과 복구)
   useEffect(() => {
-    // discipline이 null이면 이미 초기 상태
     if (!context.activeDiscipline) {
       if (context.activeRegion === null && context.activeRevision === null) return;
     }
@@ -57,10 +53,8 @@ export const DrawingControls = ({ drawing, context, setContext }: Props) => {
       activeRegion: null,
       activeRevision: null,
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context.activeDiscipline]);
 
-  // region 유효성 보정
   useEffect(() => {
     if (!context.activeRegion) return;
     if (!disciplineData?.regions?.[context.activeRegion]) {
@@ -77,7 +71,6 @@ export const DrawingControls = ({ drawing, context, setContext }: Props) => {
       ? (disciplineData.regions[context.activeRegion]?.revisions ?? [])
       : (disciplineData?.revisions ?? []);
 
-  // revision 유효성 보정
   useEffect(() => {
     if (!context.activeRevision) return;
     const exists = revisions.some((rv) => rv.version === context.activeRevision);

@@ -25,28 +25,3 @@
   min-height: 0;
   overflow: hidden;
 }
-
-.context {
-  width: 260px;
-  border-left: 1px solid #ddd;
-}
-
-/* Tablet default: hidden */
-@media (max-width: 1024px) {
-  .context {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 48px;
-    height: calc(100% - 48px);
-    width: 260px;
-    overflow: hidden;
-    background: #2f2f2f;
-    box-shadow: -8px 0 16px rgba(0, 0, 0, 0.25);
-    z-index: 10;
-  }
-
-  .context.contextVisible {
-    display: block;
-  }
-}
