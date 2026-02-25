@@ -4,6 +4,7 @@ import type { Metadata } from '../../../shared/types/metadata';
 import { resolveRevisionContext } from '../../../entities/drawing/selectors';
 
 import styles from './TopBar.module.css';
+import { SlidersHorizontal } from 'lucide-react';
 
 const metadata = metadataJson as unknown as Metadata;
 
@@ -24,8 +25,9 @@ export const TopBar = ({ context, onTogglePanel, onToggleSide, isSideLayout }: P
       </div>
 
       <div className={styles.right}>
-        <button className={styles.contextButton} onClick={onTogglePanel}>
-          Context
+        <button onClick={onTogglePanel} className={styles.controlButton}>
+          <SlidersHorizontal size={16} />
+          <span>Control</span>
         </button>
         {isSideLayout && <button onClick={onToggleSide}>패널 위치 전환</button>}
       </div>

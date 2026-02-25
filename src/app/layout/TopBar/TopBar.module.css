@@ -7,7 +7,6 @@
   padding: 0 16px;
   border-bottom: 1px solid #ddd;
   background: #000;
-  width: transparent;
 }
 
 .left {
@@ -26,9 +25,26 @@
   white-space: nowrap;
 }
 
-.contextButton {
-  background: transparent;
-  border: 1px solid #ddd;
-  padding: 4px 8px;
+.controlButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 10px;
   font-size: 12px;
+  color: #e5e5e5;
+
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+
+  cursor: pointer;
+}
+
+.controlButton:hover {
+  background: #1a1a1a;
+}
+
+.controlButton:active {
+  background: #222;
 }
