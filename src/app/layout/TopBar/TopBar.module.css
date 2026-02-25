@@ -32,10 +32,3 @@
   padding: 4px 8px;
   font-size: 12px;
 }
-
-/* Desktop: hide button */
-@media (min-width: 1025px) {
-  .contextButton {
-    display: none;
-  }
-}

@@ -11,15 +11,15 @@ type Props = {
 };
 
 export function MainLayout({ context, setContext }: Props) {
-  const [showContext, setShowContext] = useState(false);
+  const [ispanelOpen, setIsPanelOpen] = useState(true);
 
   return (
     <div className={styles.layoutRoot}>
-      <TopBar context={context} onToggleContext={() => setShowContext((v) => !v)} />
+      <TopBar context={context} onToggleContext={() => setIsPanelOpen((v) => !v)} />
 
       <div className={styles.mainRow}>
         <main className={styles.viewer}>
-          <ViewerPane context={context} setContext={setContext} />
+          <ViewerPane context={context} setContext={setContext} panelOpen={ispanelOpen} />
         </main>
       </div>
     </div>

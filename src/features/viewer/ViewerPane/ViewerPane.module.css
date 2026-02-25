@@ -33,20 +33,42 @@
   border-bottom: 1px solid #2a2a2a;
   grid-template-columns: 1fr 1fr;
   background: #1a1a1a;
+  transition:
+    max-height 180ms ease,
+    opacity 120ms ease;
+}
+
+.controlsTop.closed {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
 }
 
 .controlsSide {
   height: 100%;
   overflow: auto;
   background: #1a1a1a;
+  transition:
+    transform 180ms ease,
+    opacity 120ms ease;
 }
 
 .controlsSide.left {
   border-right: 1px solid #2a2a2a;
+  transform: translateX(0);
+}
+
+.controlsSide.left.closed {
+  transform: translateX(-100%);
 }
 
 .controlsSide.right {
   border-left: 1px solid #2a2a2a;
+  transform: translateX(0);
+}
+
+.controlsSide.right.closed {
+  transform: translateX(100%);
 }
 
 /* Card */

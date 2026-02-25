@@ -21,12 +21,12 @@ const metadata = metadataJson as unknown as Metadata;
 type Props = {
   context: ViewerContext;
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
+  panelOpen: boolean;
 };
 
-export const ViewerPane = ({ context, setContext }: Props) => {
+export const ViewerPane = ({ context, setContext, panelOpen }: Props) => {
   const prevDrawingId = useRef<string | null>(null);
 
-  const [panelOpen, setPanelOpen] = useState(true);
   const [side, setSide] = useState<'left' | 'right'>('left');
   const [layout, setLayout] = useState<'top' | 'side'>(() =>
     window.innerWidth / window.innerHeight > 1.2 ? 'side' : 'top',
@@ -65,7 +65,7 @@ export const ViewerPane = ({ context, setContext }: Props) => {
       activeRegion: derived.normalized.region,
       activeRevision: derived.normalized.revision,
     }) ??
-      drawingForView.image); // ⭐ root 기본 도면
+      drawingForView.image);
 
   const overlayInfo =
     derived.normalized.overlay.enabled && drawingForView

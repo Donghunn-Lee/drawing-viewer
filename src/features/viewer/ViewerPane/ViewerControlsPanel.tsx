@@ -9,14 +9,12 @@ type Props = {
 };
 
 export const ViewerControlsPanel = ({ children, layout, open, side }: Props) => {
-  if (!open) return null;
-
   if (layout === 'top') {
-    return <div className={styles.controlsTop}>{children}</div>;
+    return open ? <div className={styles.controlsTop}>{children}</div> : null;
   }
 
   return (
-    <div className={clsx(styles.controlsSide, side === 'left' ? styles.left : styles.right)}>
+    <div className={clsx(styles.controlsSide, styles[side], !open && styles.closed)}>
       {children}
     </div>
   );
