@@ -16,7 +16,7 @@ export const ViewerSelectSection = ({ state, siteOptions, setContext }: Props) =
   return (
     <>
       <ControlSelectCell
-        label="공간"
+        label="도면"
         value={normalized.site}
         options={siteOptions}
         onChange={(v) =>

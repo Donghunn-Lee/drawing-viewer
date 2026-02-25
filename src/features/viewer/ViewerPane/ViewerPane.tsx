@@ -141,7 +141,11 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
             </ContextCard>
 
             <ContextCard title="Context">
-              <ViewerContextSection context={context} revision={derived.activeRevisionData} />
+              <ViewerContextSection
+                context={context}
+                drawing={drawingForView}
+                revision={derived.activeRevisionData}
+              />
             </ContextCard>
           </ViewerControlsPanel>
         </div>

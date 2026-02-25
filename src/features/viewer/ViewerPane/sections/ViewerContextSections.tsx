@@ -1,8 +1,10 @@
 import type { ViewerContext } from '../../../../shared/types/context';
+import type { Drawing } from '../../../../shared/types/metadata';
 import { ContextValueCell } from '../cells/ContextValueCell';
 
 type Props = {
   context: ViewerContext;
+  drawing: Drawing | null;
   revision: {
     version: string;
     date?: string;
@@ -11,9 +13,10 @@ type Props = {
   } | null;
 };
 
-export const ViewerContextSection = ({ context, revision }: Props) => {
+export const ViewerContextSection = ({ context, drawing, revision }: Props) => {
   return (
     <>
+      <ContextValueCell label="도면" value={drawing?.name ?? '-'} />
       <ContextValueCell label="공종" value={context.activeDiscipline ?? '-'} />
       <ContextValueCell label="구역" value={context.activeRegion ?? '-'} />
       <ContextValueCell label="리비전" value={revision?.version ?? '-'} />
