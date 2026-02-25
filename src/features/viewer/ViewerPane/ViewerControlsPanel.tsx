@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import styles from './ViewerPane.module.css';
 
 type Props = {
@@ -5,7 +6,21 @@ type Props = {
 };
 
 export const ViewerControlsPanel = ({ children }: Props) => {
-  const isLandscape = window.innerWidth / window.innerHeight > 1.2;
+  const [layout, setLayout] = useState<'top' | 'side'>(() =>
+    window.innerWidth / window.innerHeight > 1.2 ? 'side' : 'top',
+  );
 
-  return <div className={isLandscape ? styles.controlsSide : styles.controlsTop}>{children}</div>;
+  useEffect(() => {
+    const handleResize = () => {
+      const isLandscape = window.innerWidth / window.innerHeight > 1.2;
+      setLayout(isLandscape ? 'side' : 'top');
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <div className={layout === 'side' ? styles.controlsSide : styles.controlsTop}>{children}</div>
+  );
 };
