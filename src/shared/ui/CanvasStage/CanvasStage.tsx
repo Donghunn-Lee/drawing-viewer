@@ -1,5 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Polygon as MetaPolygon, Transform } from '../../types/metadata';
+import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
+
+import styles from './CanvasStageControls.module.css';
 
 const POLYGON_FILL = 'rgba(56, 132, 255, 0.22)';
 const POLYGON_STROKE = 'rgba(56, 132, 255, 0.85)';
@@ -184,6 +187,45 @@ export const CanvasStage = ({
     return calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height);
   }, [baseImg, localView, viewport]);
 
+  const ZOOM_STEP = 1.2;
+
+  const resetView = () => {
+    if (!baseImg) return;
+    setLocalView(calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height));
+  };
+
+  const zoomBy = (factor: number) => {
+    if (!baseImg || !computedView || !baseContainView) return;
+
+    const MIN_SCALE = baseContainView.scale * 0.5;
+    const MAX_SCALE = baseContainView.scale * 5;
+
+    const sx = viewport.width / 2;
+    const sy = viewport.height / 2;
+
+    // Screen(center) -> world
+    const wx = (sx - computedView.offsetX) / computedView.scale;
+    const wy = (sy - computedView.offsetY) / computedView.scale;
+
+    const nextScale = clamp(computedView.scale * factor, MIN_SCALE, MAX_SCALE);
+
+    setLocalView({
+      scale: nextScale,
+      offsetX: sx - wx * nextScale,
+      offsetY: sy - wy * nextScale,
+    });
+  };
+
+  const baseContainView = useMemo(() => {
+    if (!baseImg || viewport.width === 0 || viewport.height === 0) return null;
+    return calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height);
+  }, [baseImg, viewport.width, viewport.height]);
+
+  const zoomPercent = useMemo(() => {
+    if (!computedView || !baseContainView) return null;
+    return Math.round(Math.min((computedView.scale / baseContainView.scale) * 100, 500));
+  }, [computedView, baseContainView]);
+
   useEffect(() => {
     if (!baseImg || viewport.width === 0 || viewport.height === 0) return;
     setLocalView(calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height));
@@ -312,10 +354,10 @@ export const CanvasStage = ({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !baseImg || !computedView) return;
+    if (!canvas || !baseImg || !computedView || !baseContainView) return;
 
-    const MIN_SCALE = 0.2;
-    const MAX_SCALE = 8;
+    const MIN_SCALE = baseContainView.scale * 0.5;
+    const MAX_SCALE = baseContainView.scale * 5;
 
     const getWorldFromClient = (clientX: number, clientY: number) => {
       const rect = canvas.getBoundingClientRect();
@@ -407,7 +449,7 @@ export const CanvasStage = ({
       canvas.removeEventListener('pointerup', endDrag);
       canvas.removeEventListener('pointercancel', endDrag);
     };
-  }, [baseImg, viewport.width, viewport.height, computedView, hoveredIndex]);
+  }, [baseImg, viewport.width, viewport.height, computedView, hoveredIndex, baseContainView]);
 
   return (
     <div
@@ -419,6 +461,43 @@ export const CanvasStage = ({
         overflow: 'hidden',
       }}
     >
+      <div className={styles.controls}>
+        <div className={styles.zoomRow}>
+          <button
+            type="button"
+            className={styles.zoomButton}
+            title="Zoom out"
+            onClick={() => zoomBy(1 / ZOOM_STEP)}
+          >
+            <ZoomOut size={16} />
+          </button>
+
+          <div className={styles.zoomPercent} title="Zoom level (relative to fit-to-screen)">
+            {zoomPercent}%
+          </div>
+
+          <button
+            type="button"
+            className={styles.zoomButton}
+            title="Zoom in"
+            onClick={() => zoomBy(ZOOM_STEP)}
+          >
+            <ZoomIn size={16} />
+          </button>
+        </div>
+
+        <div className={styles.resetRow}>
+          <button
+            type="button"
+            className={styles.resetButton}
+            title="Reset view"
+            onClick={resetView}
+          >
+            <RotateCcw size={16} />
+          </button>
+        </div>
+      </div>
+
       <canvas
         ref={canvasRef}
         style={{
