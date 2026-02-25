@@ -84,9 +84,6 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
       .filter((d) => d.parent === drawingForView.id && d.position)
       .map((child) => ({
         vertices: child.position!.vertices,
-        stroke: 'rgba(0,120,255,0.8)',
-        fill: 'rgba(0,120,255,0.5)',
-        strokeWidth: 2,
       }));
   }, [drawingForView]);
 

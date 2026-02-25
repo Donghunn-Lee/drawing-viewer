@@ -1,6 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Polygon as MetaPolygon, Transform } from '../../types/metadata';
 
+const POLYGON_FILL = 'rgba(56, 132, 255, 0.22)';
+const POLYGON_STROKE = 'rgba(56, 132, 255, 0.85)';
+const POLYGON_HOVER_FILL = 'rgba(56, 180, 255, 0.38)';
+const POLYGON_HOVER_STROKE = 'rgba(120, 210, 255, 1)';
+const POLYGON_HOVER_STROKE_WIDTH = 4;
+
 type StageOverlay = {
   src: string;
   imageTransform?: Transform;
@@ -217,18 +223,18 @@ export const CanvasStage = ({
 
       const isHovered = index === hoveredIndex;
 
-      ctx.fillStyle = p.fill ?? 'rgba(0,128,255,0.15)';
-      ctx.globalAlpha = isHovered ? 0.35 : (p.fillOpacity ?? 1);
+      ctx.fillStyle = isHovered ? POLYGON_HOVER_FILL : (p.fill ?? POLYGON_FILL);
+      ctx.globalAlpha = 1;
       ctx.fill();
 
-      ctx.strokeStyle = p.stroke ?? 'rgba(0,128,255,0.9)';
-      ctx.lineWidth = isHovered ? 4 : (p.strokeWidth ?? 2);
+      ctx.strokeStyle = isHovered ? POLYGON_HOVER_STROKE : (p.stroke ?? POLYGON_STROKE);
+      ctx.lineWidth = isHovered ? POLYGON_HOVER_STROKE_WIDTH : (p.strokeWidth ?? 2);
       ctx.stroke();
 
       ctx.restore();
     });
     ctx.restore();
-  }, [baseImg, overlays, overlayImgs, polygons, computedView, debug, viewport]);
+  }, [baseImg, overlays, overlayImgs, polygons, computedView, debug, viewport, hoveredIndex]);
 
   /**
    * HIT TEST (click)
@@ -273,7 +279,9 @@ export const CanvasStage = ({
       const wy = (e.clientY - rect.top - computedView.offsetY) / computedView.scale;
 
       const hit = hitTestPolygon(ctx, polygons, wx, wy);
+
       setHoveredIndex(hit);
+      canvas.style.cursor = hit !== null ? 'pointer' : 'default';
     };
 
     canvas.addEventListener('mousemove', handleMove);
