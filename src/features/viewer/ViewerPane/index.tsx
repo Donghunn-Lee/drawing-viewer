@@ -10,7 +10,6 @@ import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/sele
 import { ViewerContextSurface } from './ViewerContextSurface';
 import { ViewerSelectSection } from './sections/ViewerSelectSection';
 import { ViewerContextSection } from './sections/ViewerContextSections';
-import { GridSurface } from './layout/GridSurface';
 import { useViewerDerivedState } from './hooks/useViewerDerivedState';
 
 import styles from './ViewerPane.module.css';
@@ -95,25 +94,21 @@ export const ViewerPane = ({ context, setContext, layout = 'top' }: Props) => {
         <ViewerContextSurface layout={layout}>
           {layout === 'top' ? (
             <>
-              <ContextCard>
-                <GridSurface rows={4}>
-                  <ViewerSelectSection state={derived} setContext={setContext} />
-                </GridSurface>
+              <ContextCard title="Select">
+                <ViewerSelectSection state={derived} setContext={setContext} />
               </ContextCard>
 
-              <ContextCard>
-                <GridSurface rows={4}>
-                  <ViewerContextSection context={context} revision={derived.activeRevisionData} />
-                </GridSurface>
+              <ContextCard title="Context">
+                <ViewerContextSection context={context} revision={derived.activeRevisionData} />
               </ContextCard>
             </>
           ) : (
             <>
-              <ContextCard>
+              <ContextCard title="Select">
                 <ViewerSelectSection state={derived} setContext={setContext} />
               </ContextCard>
 
-              <ContextCard>
+              <ContextCard title="Context">
                 <ViewerContextSection context={context} revision={derived.activeRevisionData} />
               </ContextCard>
             </>
