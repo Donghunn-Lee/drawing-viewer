@@ -25,11 +25,6 @@ export type CanvasStageProps = {
   overlays?: StageOverlay[];
   polygons?: StagePolygon[];
   onPolygonClick?: (index: number) => void;
-  view?: {
-    scale: number;
-    offsetX: number;
-    offsetY: number;
-  };
   debug?: boolean;
 };
 
@@ -42,10 +37,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-/**
- * Apply metadata transform in world space.
- * (x, y) is treated as pivot in base image coordinates.
- */
+// Must match draw + hit-test path exactly.
 const applyWorldTransform = (ctx: CanvasRenderingContext2D, t?: Transform) => {
   if (!t) return;
   ctx.translate(t.x, t.y);
@@ -63,12 +55,13 @@ const calcContainView = (baseW: number, baseH: number, viewportW: number, viewpo
   };
 };
 
+const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+
 export const CanvasStage = ({
   baseSrc,
   overlays = [],
   polygons = [],
   onPolygonClick,
-  view,
   debug = false,
 }: CanvasStageProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -78,6 +71,29 @@ export const CanvasStage = ({
   const [baseImg, setBaseImg] = useState<HTMLImageElement | null>(null);
   const [overlayImgs, setOverlayImgs] = useState<Record<string, HTMLImageElement>>({});
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const [localView, setLocalView] = useState<{
+    scale: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+
+  // Ref to avoid rerendering on pointer move.
+  const dragRef = useRef<{
+    dragging: boolean;
+    startX: number;
+    startY: number;
+    startOffsetX: number;
+    startOffsetY: number;
+    pointerId: number | null;
+  }>({
+    dragging: false,
+    startX: 0,
+    startY: 0,
+    startOffsetX: 0,
+    startOffsetY: 0,
+    pointerId: null,
+  });
 
   const hitTestPolygon = (
     ctx: CanvasRenderingContext2D,
@@ -106,7 +122,7 @@ export const CanvasStage = ({
     }
     return null;
   };
-  /** adjust canvas container */
+
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -123,7 +139,6 @@ export const CanvasStage = ({
     return () => observer.disconnect();
   }, []);
 
-  /** Load base image */
   useEffect(() => {
     let cancelled = false;
     loadImage(baseSrc)
@@ -134,7 +149,6 @@ export const CanvasStage = ({
     };
   }, [baseSrc]);
 
-  /** Load overlay images (cached by src) */
   useEffect(() => {
     let cancelled = false;
     const uniqueSrcs = Array.from(new Set(overlays.map((o) => o.src)));
@@ -166,12 +180,15 @@ export const CanvasStage = ({
 
   const computedView = useMemo(() => {
     if (!baseImg || viewport.width === 0 || viewport.height === 0) return null;
-    return view ?? calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height);
-  }, [baseImg, view, viewport]);
+    if (localView) return localView;
+    return calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height);
+  }, [baseImg, localView, viewport]);
 
-  /**
-   * DRAW
-   */
+  useEffect(() => {
+    if (!baseImg || viewport.width === 0 || viewport.height === 0) return;
+    setLocalView(calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height));
+  }, [baseImg, viewport.width, viewport.height]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
@@ -180,6 +197,7 @@ export const CanvasStage = ({
     const { width, height } = viewport;
     if (!width || !height) return;
 
+    // DPR-aware canvas sizing to avoid blurry rendering.
     const dpr = window.devicePixelRatio || 1;
     canvas.width = Math.floor(width * dpr);
     canvas.height = Math.floor(height * dpr);
@@ -190,13 +208,12 @@ export const CanvasStage = ({
     ctx.clearRect(0, 0, width, height);
 
     ctx.save();
+    // View transform: screen -> world
     ctx.translate(computedView.offsetX, computedView.offsetY);
     ctx.scale(computedView.scale, computedView.scale);
 
-    // Base
     ctx.drawImage(baseImg, 0, 0);
 
-    // Overlays
     for (const o of overlays) {
       const img = overlayImgs[o.src];
       if (!img) continue;
@@ -207,7 +224,6 @@ export const CanvasStage = ({
       ctx.restore();
     }
 
-    // Polygons
     polygons.forEach((p, index) => {
       if (!p.vertices || p.vertices.length < 2) return;
 
@@ -233,13 +249,10 @@ export const CanvasStage = ({
 
       ctx.restore();
     });
+
     ctx.restore();
   }, [baseImg, overlays, overlayImgs, polygons, computedView, debug, viewport, hoveredIndex]);
 
-  /**
-   * HIT TEST (click)
-   * Must mirror draw transform order exactly.
-   */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !onPolygonClick || !computedView) return;
@@ -249,15 +262,12 @@ export const CanvasStage = ({
 
     const handleClick = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-
-      // Screen -> world coordinates
+      // Screen -> world (inverse of view transform)
       const wx = (e.clientX - rect.left - computedView.offsetX) / computedView.scale;
       const wy = (e.clientY - rect.top - computedView.offsetY) / computedView.scale;
 
       const hit = hitTestPolygon(ctx, polygons, wx, wy);
-      if (hit !== null) {
-        onPolygonClick(hit);
-      }
+      if (hit !== null) onPolygonClick(hit);
     };
 
     canvas.addEventListener('click', handleClick);
@@ -275,23 +285,129 @@ export const CanvasStage = ({
 
     const handleMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
+      // Screen -> world (inverse of view transform)
       const wx = (e.clientX - rect.left - computedView.offsetX) / computedView.scale;
       const wy = (e.clientY - rect.top - computedView.offsetY) / computedView.scale;
 
       const hit = hitTestPolygon(ctx, polygons, wx, wy);
 
       setHoveredIndex(hit);
-      canvas.style.cursor = hit !== null ? 'pointer' : 'default';
+      canvas.style.cursor =
+        hit !== null ? 'pointer' : dragRef.current.dragging ? 'grabbing' : 'grab';
+    };
+
+    const handleLeave = () => {
+      setHoveredIndex(null);
+      if (!dragRef.current.dragging) canvas.style.cursor = 'grab';
     };
 
     canvas.addEventListener('mousemove', handleMove);
-    canvas.addEventListener('mouseleave', () => setHoveredIndex(null));
+    canvas.addEventListener('mouseleave', handleLeave);
 
     return () => {
       canvas.removeEventListener('mousemove', handleMove);
-      canvas.removeEventListener('mouseleave', () => setHoveredIndex(null));
+      canvas.removeEventListener('mouseleave', handleLeave);
     };
   }, [polygons, computedView]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !baseImg || !computedView) return;
+
+    const MIN_SCALE = 0.2;
+    const MAX_SCALE = 8;
+
+    const getWorldFromClient = (clientX: number, clientY: number) => {
+      const rect = canvas.getBoundingClientRect();
+      const sx = clientX - rect.left;
+      const sy = clientY - rect.top;
+      const wx = (sx - computedView.offsetX) / computedView.scale;
+      const wy = (sy - computedView.offsetY) / computedView.scale;
+      return { sx, sy, wx, wy };
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      // passive:false so we can prevent page scroll while zooming.
+      e.preventDefault();
+
+      const zoomIntensity = 0.0015;
+      const factor = Math.exp(-e.deltaY * zoomIntensity);
+
+      const { sx, sy, wx, wy } = getWorldFromClient(e.clientX, e.clientY);
+
+      setLocalView((prev) => {
+        const cur =
+          prev ?? calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height);
+        const nextScale = clamp(cur.scale * factor, MIN_SCALE, MAX_SCALE);
+
+        // Zoom around cursor (keep world point under the mouse).
+        return {
+          scale: nextScale,
+          offsetX: sx - wx * nextScale,
+          offsetY: sy - wy * nextScale,
+        };
+      });
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      dragRef.current.dragging = true;
+      dragRef.current.pointerId = e.pointerId;
+      dragRef.current.startX = e.clientX;
+      dragRef.current.startY = e.clientY;
+      dragRef.current.startOffsetX = computedView.offsetX;
+      dragRef.current.startOffsetY = computedView.offsetY;
+
+      canvas.setPointerCapture(e.pointerId);
+      canvas.style.cursor = 'grabbing';
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (!dragRef.current.dragging) return;
+      if (dragRef.current.pointerId !== e.pointerId) return;
+
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+
+      setLocalView((prev) => {
+        const cur =
+          prev ?? calcContainView(baseImg.width, baseImg.height, viewport.width, viewport.height);
+        return {
+          ...cur,
+          offsetX: dragRef.current.startOffsetX + dx,
+          offsetY: dragRef.current.startOffsetY + dy,
+        };
+      });
+    };
+
+    const endDrag = (e: PointerEvent) => {
+      if (!dragRef.current.dragging) return;
+      if (dragRef.current.pointerId !== e.pointerId) return;
+
+      dragRef.current.dragging = false;
+      dragRef.current.pointerId = null;
+
+      canvas.style.cursor = hoveredIndex !== null ? 'pointer' : 'grab';
+      try {
+        canvas.releasePointerCapture(e.pointerId);
+      } catch {
+        // no-op
+      }
+    };
+
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', endDrag);
+
+    return () => {
+      canvas.removeEventListener('wheel', handleWheel as any);
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      canvas.removeEventListener('pointermove', onPointerMove);
+      canvas.removeEventListener('pointerup', endDrag);
+      canvas.removeEventListener('pointercancel', endDrag);
+    };
+  }, [baseImg, viewport.width, viewport.height, computedView, hoveredIndex]);
 
   return (
     <div
@@ -309,7 +425,8 @@ export const CanvasStage = ({
           display: 'block',
           width: '100%',
           height: '100%',
-          background: '#f5f5f5',
+          touchAction: 'none',
+          cursor: 'grab',
         }}
       />
     </div>
