@@ -4,17 +4,11 @@ import styles from './ViewerPane.module.css';
 type Props = {
   children: React.ReactNode;
   layout: 'top' | 'side';
-  open: boolean;
-  side: 'left' | 'right';
 };
 
-export const ViewerControlsPanel = ({ children, layout, open, side }: Props) => {
-  if (layout === 'top') {
-    return open ? <div className={styles.controlsTop}>{children}</div> : null;
-  }
-
+export const ViewerControlsPanel = ({ children, layout }: Props) => {
   return (
-    <div className={clsx(styles.controlsSide, styles[side], !open && styles.closed)}>
+    <div className={clsx(layout === 'top' ? styles.controlsTop : styles.controlsSide)}>
       {children}
     </div>
   );

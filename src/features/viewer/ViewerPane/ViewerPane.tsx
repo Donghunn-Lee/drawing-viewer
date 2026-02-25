@@ -1,58 +1,58 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import clsx from 'clsx';
+
 import type { ViewerContext } from '../../../shared/types/context';
 import type { Metadata } from '../../../shared/types/metadata';
+import type { ViewerLayout } from '../../../shared/types/viewerLayout';
 
 import metadataJson from '../../../data/metadata.json';
 
 import { DrawingCanvas } from './DrawingCanvas';
-import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
-
 import { ViewerControlsPanel } from './ViewerControlsPanel';
 import { ViewerSelectSection } from './sections/ViewerSelectSection';
 import { ViewerContextSection } from './sections/ViewerContextSections';
+import { ContextCard } from './layout/ContextCard';
+
+import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
 import { useViewerDerivedState } from './hooks/useViewerDerivedState';
 
 import styles from './ViewerPane.module.css';
-import { ContextCard } from './layout/ContextCard';
-import clsx from 'clsx';
 
 const metadata = metadataJson as unknown as Metadata;
 
 type Props = {
   context: ViewerContext;
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
-  panelOpen: boolean;
+  viewerLayout: ViewerLayout;
 };
 
-export const ViewerPane = ({ context, setContext, panelOpen }: Props) => {
+export const ViewerPane = ({ context, setContext, viewerLayout }: Props) => {
   const prevDrawingId = useRef<string | null>(null);
 
-  const [side, setSide] = useState<'left' | 'right'>('left');
-  const [layout, setLayout] = useState<'top' | 'side'>(() =>
-    window.innerWidth / window.innerHeight > 1.2 ? 'side' : 'top',
-  );
+  const isTop = viewerLayout.mode === 'top';
+  const isSide = viewerLayout.mode === 'side';
+  const isOpen = viewerLayout.open;
+  const side = viewerLayout.mode === 'side' ? viewerLayout.side : null;
+
+  const showControls = isSide || (isTop && isOpen);
 
   const rootDrawing = useMemo(
     () => Object.values(metadata.drawings).find((d) => d.parent === null) ?? null,
     [],
   );
 
-  const activeDrawing = useMemo(() => {
-    if (!context.activeDrawingId) return null;
-    return metadata.drawings[context.activeDrawingId] ?? null;
-  }, [context.activeDrawingId]);
+  const activeDrawing = useMemo(
+    () => (context.activeDrawingId ? (metadata.drawings[context.activeDrawingId] ?? null) : null),
+    [context.activeDrawingId],
+  );
 
   const drawingForView = activeDrawing ?? rootDrawing;
 
   const siteOptions = useMemo(() => {
     if (!rootDrawing) return [];
-
     return Object.values(metadata.drawings)
       .filter((d) => d.parent === rootDrawing.id)
-      .map((d) => ({
-        value: d.id,
-        label: d.name,
-      }));
+      .map((d) => ({ value: d.id, label: d.name }));
   }, [rootDrawing]);
 
   const derived = useViewerDerivedState({ context, drawing: drawingForView });
@@ -117,40 +117,37 @@ export const ViewerPane = ({ context, setContext, panelOpen }: Props) => {
         activeRevision: null,
       }));
     }
-
     prevDrawingId.current = context.activeDrawingId;
   }, [context.activeDrawingId, setContext]);
-
-  useEffect(() => {
-    const onResize = () => {
-      const isLandscape = window.innerWidth / window.innerHeight > 1.2;
-      setLayout(isLandscape ? 'side' : 'top');
-    };
-
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
 
   return (
     <div
       className={clsx(
         styles.viewerRoot,
-        layout === 'side'
-          ? panelOpen
-            ? styles.viewerSide
-            : styles.viewerSideClosed
-          : styles.viewerTop,
+        isTop && styles.viewerTop,
+        isSide && styles.viewerSide,
+        isSide && side === 'left' && styles.left,
+        isSide && side === 'right' && styles.right,
+        isSide && !isOpen && styles.closed,
       )}
     >
-      <ViewerControlsPanel layout={layout} open={panelOpen} side={side}>
-        <ContextCard title="Select">
-          <ViewerSelectSection state={derived} siteOptions={siteOptions} setContext={setContext} />
-        </ContextCard>
+      {showControls && (
+        <div className={styles.controlsPanel}>
+          <ViewerControlsPanel layout={viewerLayout.mode}>
+            <ContextCard title="Select">
+              <ViewerSelectSection
+                state={derived}
+                siteOptions={siteOptions}
+                setContext={setContext}
+              />
+            </ContextCard>
 
-        <ContextCard title="Context">
-          <ViewerContextSection context={context} revision={derived.activeRevisionData} />
-        </ContextCard>
-      </ViewerControlsPanel>
+            <ContextCard title="Context">
+              <ViewerContextSection context={context} revision={derived.activeRevisionData} />
+            </ContextCard>
+          </ViewerControlsPanel>
+        </div>
+      )}
 
       <div className={styles.canvasWrapper}>
         {baseSrc && (

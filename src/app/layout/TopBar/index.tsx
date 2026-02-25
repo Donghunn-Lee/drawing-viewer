@@ -9,10 +9,12 @@ const metadata = metadataJson as unknown as Metadata;
 
 type Props = {
   context: ViewerContext;
-  onToggleContext?: () => void;
+  onTogglePanel: () => void;
+  onToggleSide?: () => void;
+  isSideLayout?: boolean;
 };
 
-export const TopBar = ({ context, onToggleContext }: Props) => {
+export const TopBar = ({ context, onTogglePanel, onToggleSide, isSideLayout }: Props) => {
   const resolved = resolveRevisionContext(metadata, context);
 
   return (
@@ -22,9 +24,10 @@ export const TopBar = ({ context, onToggleContext }: Props) => {
       </div>
 
       <div className={styles.right}>
-        <button className={styles.contextButton} onClick={onToggleContext}>
+        <button className={styles.contextButton} onClick={onTogglePanel}>
           Context
         </button>
+        {isSideLayout && <button onClick={onToggleSide}>패널 위치 전환</button>}
       </div>
     </div>
   );

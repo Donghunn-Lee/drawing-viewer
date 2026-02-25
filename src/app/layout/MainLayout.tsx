@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
+
 import type { ViewerContext } from '../../shared/types/context';
+import type { ViewerLayout } from '../../shared/types/viewerLayout';
 import { ViewerPane } from '../../features/viewer/ViewerPane/ViewerPane';
 import { TopBar } from './TopBar';
 
 import styles from '../layout/MainLayout.module.css';
-import { useState } from 'react';
 
 type Props = {
   context: ViewerContext;
@@ -11,15 +13,52 @@ type Props = {
 };
 
 export function MainLayout({ context, setContext }: Props) {
-  const [ispanelOpen, setIsPanelOpen] = useState(true);
+  const getInitialLayout = (): ViewerLayout =>
+    window.innerWidth / window.innerHeight > 1
+      ? { mode: 'side', side: 'left', open: true }
+      : { mode: 'top', open: true };
+
+  const [viewerLayout, setViewerLayout] = useState<ViewerLayout>(getInitialLayout);
+
+  useEffect(() => {
+    const onResize = () => {
+      const isLandscape = window.innerWidth / window.innerHeight > 1;
+
+      setViewerLayout((prev) => {
+        if (isLandscape) {
+          return prev.mode === 'side' ? prev : { mode: 'side', side: 'left', open: prev.open };
+        }
+
+        return prev.mode === 'top' ? prev : { mode: 'top', open: prev.open };
+      });
+    };
+
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const togglePanel = () => {
+    setViewerLayout((prev) => ({ ...prev, open: !prev.open }));
+  };
+
+  const toggleSide = () => {
+    setViewerLayout((prev) =>
+      prev.mode === 'side' ? { ...prev, side: prev.side === 'left' ? 'right' : 'left' } : prev,
+    );
+  };
 
   return (
     <div className={styles.layoutRoot}>
-      <TopBar context={context} onToggleContext={() => setIsPanelOpen((v) => !v)} />
+      <TopBar
+        context={context}
+        onTogglePanel={togglePanel}
+        isSideLayout={viewerLayout.mode === 'side'}
+        onToggleSide={toggleSide}
+      />
 
       <div className={styles.mainRow}>
         <main className={styles.viewer}>
-          <ViewerPane context={context} setContext={setContext} panelOpen={ispanelOpen} />
+          <ViewerPane context={context} setContext={setContext} viewerLayout={viewerLayout} />
         </main>
       </div>
     </div>

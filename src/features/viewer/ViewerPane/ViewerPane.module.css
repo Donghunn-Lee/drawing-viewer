@@ -1,77 +1,102 @@
-/* view */
+/* =========================
+   Viewer Layout
+   ========================= */
 
 .viewerRoot {
   position: relative;
   height: 100%;
+  width: 100%;
   display: grid;
 }
 
-.viewerSide {
-  grid-template-columns: 360px 1fr;
-}
-
-.viewerSideLeft {
-  grid-template-columns: 360px 1fr;
-}
-
-.viewerSideRight {
-  grid-template-columns: 1fr 360px;
-}
-
-.viewerSideClosed {
-  grid-template-columns: 0 1fr;
-}
+/* ---------- Top ---------- */
 
 .viewerTop {
   grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr;
 }
 
-/* ControlsPanal */
+.viewerTop .controlsPanel {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.viewerTop .canvasWrapper {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+/* ---------- Side ---------- */
+
+.viewerSide {
+  height: 100%;
+}
+
+.viewerSide.left {
+  grid-template-columns: 360px 1fr;
+}
+
+.viewerSide.right {
+  grid-template-columns: 1fr 360px;
+}
+
+.viewerSide.left.closed {
+  grid-template-columns: 0 1fr;
+}
+
+.viewerSide.right.closed {
+  grid-template-columns: 1fr 0;
+}
+
+/* grid placement */
+
+.viewerSide .controlsPanel {
+  grid-column: 1;
+}
+
+.viewerSide .canvasWrapper {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.viewerSide.right .controlsPanel {
+  grid-column: 2;
+}
+
+.viewerSide.right .canvasWrapper {
+  grid-column: 1;
+}
+
+.viewerSide .controlsPanel,
+.viewerSide .canvasWrapper {
+  grid-row: 1;
+}
+
+/* =========================
+     Controls Panel
+     ========================= */
+
+.controlsPanel {
+  width: 100%;
+}
 
 .controlsTop {
   display: grid;
-  border-bottom: 1px solid #2a2a2a;
   grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+  border-bottom: 1px solid #2a2a2a;
   background: #1a1a1a;
-  transition:
-    max-height 180ms ease,
-    opacity 120ms ease;
-}
-
-.controlsTop.closed {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
 }
 
 .controlsSide {
   height: 100%;
   overflow: auto;
   background: #1a1a1a;
-  transition:
-    transform 180ms ease,
-    opacity 120ms ease;
 }
 
-.controlsSide.left {
-  border-right: 1px solid #2a2a2a;
-  transform: translateX(0);
-}
-
-.controlsSide.left.closed {
-  transform: translateX(-100%);
-}
-
-.controlsSide.right {
-  border-left: 1px solid #2a2a2a;
-  transform: translateX(0);
-}
-
-.controlsSide.right.closed {
-  transform: translateX(100%);
-}
-
-/* Card */
+/* =========================
+     Context Card
+     ========================= */
 
 .contextCard {
   background: #1f1f1f;
@@ -97,7 +122,9 @@
   border-bottom: 1px solid #2a2a2a;
 }
 
-/* Control / Context Cells */
+/* =========================
+     Control / Context Cells
+     ========================= */
 
 .controlCell {
   display: flex;
@@ -129,7 +156,9 @@
   overflow-wrap: anywhere;
 }
 
-/* Select / Checkbox */
+/* =========================
+     Form Controls
+     ========================= */
 
 .controlCell select {
   padding: 3px 6px;
@@ -153,7 +182,9 @@
   cursor: pointer;
 }
 
-/* Canvas */
+/* =========================
+     Canvas
+     ========================= */
 
 .canvasWrapper {
   min-width: 0;
