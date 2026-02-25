@@ -2,7 +2,7 @@ import styles from '../ViewerPane.module.css';
 
 type Props = {
   label: string;
-  value?: string | null;
+  value?: React.ReactNode;
   emptyText?: string;
 };
 

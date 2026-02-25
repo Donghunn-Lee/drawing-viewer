@@ -1,9 +1,17 @@
+.viewerRoot {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ViewerContextSurface */
+
 .surfaceTop {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-bottom: 1px solid #2a2a2a;
   background: #1a1a1a;
 }
@@ -12,50 +20,82 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-bottom: 1px solid #2a2a2a;
   background: #1a1a1a;
 }
+
+/* Card */
 
 .contextCard {
   background: #1f1f1f;
   border: 1px solid #2a2a2a;
   border-radius: 8px;
-  padding: 12px 14px;
-
-  display: grid;
-  grid-auto-rows: minmax(28px, auto);
-  row-gap: 8px;
+  padding: 10px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
 }
 
+.contextCard > * {
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #cfcfcf;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+/* Control / Context Cells */
+
 .controlCell {
-  display: grid;
-  grid-template-columns: 120px 1fr;
+  display: flex;
   align-items: center;
-  column-gap: 12px;
+  padding: 2px 0;
+}
+
+.contextCell {
+  display: flex;
+  align-items: flex-start;
+  padding: 2px 0;
 }
 
 .label {
+  width: 120px;
+  flex-shrink: 0;
+  height: 22px;
+  display: flex;
+  align-items: center;
   font-size: 12px;
-  color: #bdbdbd;
-  white-space: nowrap;
 }
 
 .value {
-  font-size: 13px;
-  color: #eaeaea;
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  white-space: normal;
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
-.controlCell select {
-  height: 28px;
-  padding: 0 8px;
+/* Select / Checkbox */
 
+.controlCell select {
+  padding: 3px 6px;
   background: #2a2a2a;
   color: #eaeaea;
-
   border: 1px solid #3a3a3a;
   border-radius: 4px;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .checkbox {
@@ -66,6 +106,8 @@
 .checkbox input {
   cursor: pointer;
 }
+
+/* Canvas */
 
 .canvasWrapper {
   flex: 1;

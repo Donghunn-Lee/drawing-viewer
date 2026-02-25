@@ -1,5 +1,15 @@
 import styles from '../ViewerPane.module.css';
 
-export const ContextCard = ({ children }: { children: React.ReactNode }) => {
-  return <div className={styles.contextCard}>{children}</div>;
+type Props = {
+  title?: string;
+  children: React.ReactNode;
+};
+
+export const ContextCard = ({ title, children }: Props) => {
+  return (
+    <div className={styles.contextCard}>
+      {title && <div className={styles.cardTitle}>{title}</div>}
+      {children}
+    </div>
+  );
 };

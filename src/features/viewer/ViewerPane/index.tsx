@@ -116,14 +116,7 @@ export const ViewerPane = ({ context, setContext, layout = 'top' }: Props) => {
         </ViewerContextSurface>
       )}
 
-      <div
-        style={{
-          flex: 1,
-          minHeight: 0,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
+      <div className={styles.canvasWrapper}>
         {baseSrc && (
           <DrawingCanvas
             baseSrc={overlayInfo ? overlayInfo.src : baseSrc}
