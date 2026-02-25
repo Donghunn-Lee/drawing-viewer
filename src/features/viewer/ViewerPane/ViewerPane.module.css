@@ -1,24 +1,35 @@
 .viewerRoot {
-  display: flex;
-  flex-direction: column;
+  position: relative;
   height: 100%;
-  min-height: 0;
+  display: grid;
+}
+
+/* side layout */
+.viewerSide {
+  grid-template-columns: 360px 1fr;
+}
+
+.viewerSideClosed {
+  grid-template-columns: 0 1fr;
+}
+
+/* top layout */
+.viewerTop {
+  grid-template-rows: auto 1fr;
 }
 
 /* ViewerControlsLayout */
 
 .controlsTop {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  padding: 10px 14px;
+  border-bottom: 1px solid #2a2a2a;
+  background: #1a1a1a;
 }
 
 .controlsSide {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 10px 14px;
+  height: 100%;
+  overflow: auto;
+  border-left: 1px solid #2a2a2a;
+  background: #1a1a1a;
 }
 
 /* Card */
@@ -106,8 +117,6 @@
 /* Canvas */
 
 .canvasWrapper {
-  flex: 1;
+  min-width: 0;
   min-height: 0;
-  position: relative;
-  overflow: hidden;
 }
