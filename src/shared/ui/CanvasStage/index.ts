@@ -1,2 +1,1 @@
-export { CanvasStage } from './CanvasStage';
-export type { CanvasStageProps } from './CanvasStage';
+export * from './CanvasStage';
