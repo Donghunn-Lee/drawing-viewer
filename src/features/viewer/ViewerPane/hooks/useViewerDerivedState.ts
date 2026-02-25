@@ -2,17 +2,25 @@ import { useMemo } from 'react';
 import type { ViewerContext } from '../../../../shared/types/context';
 import type { Drawing } from '../../../../shared/types/metadata';
 
-type Option = { value: string; label: string };
+type Params = {
+  context: ViewerContext;
+  drawing: Drawing | null;
+};
 
-export const useViewerDerivedState = (context: ViewerContext, drawing: Drawing | null) => {
+export type SelectOption = { value: string; label: string };
+
+export type ViewerDerivedState = ReturnType<typeof useViewerDerivedState>;
+
+export const useViewerDerivedState = ({ context, drawing }: Params) => {
   const normalized = {
+    site: context.activeDrawingId ?? null,
     discipline: context.activeDiscipline ?? null,
     region: context.activeRegion ?? null,
     revision: context.activeRevision ?? null,
     overlay: context.overlay ?? { enabled: false, opacity: 0.5 },
   };
 
-  const disciplineOptions: Option[] = useMemo(() => {
+  const disciplineOptions: SelectOption[] = useMemo(() => {
     if (!drawing?.disciplines) return [];
     return Object.keys(drawing.disciplines).map((d) => ({ value: d, label: d }));
   }, [drawing]);
@@ -22,13 +30,13 @@ export const useViewerDerivedState = (context: ViewerContext, drawing: Drawing |
     return drawing.disciplines[normalized.discipline] ?? null;
   }, [drawing, normalized.discipline]);
 
-  const regionOptions: Option[] = useMemo(() => {
+  const regionOptions: SelectOption[] = useMemo(() => {
     const regions = activeDisciplineData?.regions;
     if (!regions) return [];
     return Object.keys(regions).map((r) => ({ value: r, label: r }));
   }, [activeDisciplineData]);
 
-  const revisionOptions: Option[] = useMemo(() => {
+  const revisionOptions: SelectOption[] = useMemo(() => {
     if (!activeDisciplineData) return [];
 
     const revisions =

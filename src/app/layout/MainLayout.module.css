@@ -3,20 +3,15 @@
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  overflow: hidden; /* ⭐ 추가 */
+  overflow: hidden;
 }
 
 .mainRow {
   flex: 1;
   display: flex;
   min-height: 0;
-  overflow: hidden; /* ⭐ 추가 */
+  overflow: hidden;
   position: relaivite;
-}
-
-.sidebar {
-  width: 220px;
-  border-right: 1px solid #ddd;
 }
 
 .viewer {

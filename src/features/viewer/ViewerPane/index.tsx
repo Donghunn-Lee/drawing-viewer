@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { ViewerContext } from '../../../shared/types/context';
 import type { Metadata } from '../../../shared/types/metadata';
 
@@ -24,6 +24,8 @@ type Props = {
 };
 
 export const ViewerPane = ({ context, setContext, layout = 'top' }: Props) => {
+  const prevDrawingId = useRef<string | null>(null);
+
   const rootDrawing = useMemo(
     () => Object.values(metadata.drawings).find((d) => d.parent === null) ?? null,
     [],
@@ -36,16 +38,28 @@ export const ViewerPane = ({ context, setContext, layout = 'top' }: Props) => {
 
   const drawingForView = activeDrawing ?? rootDrawing;
 
-  const derived = useViewerDerivedState(context, drawingForView);
+  const siteOptions = useMemo(() => {
+    if (!rootDrawing) return [];
+
+    return Object.values(metadata.drawings)
+      .filter((d) => d.parent === rootDrawing.id)
+      .map((d) => ({
+        value: d.id,
+        label: d.name,
+      }));
+  }, [rootDrawing]);
+
+  const derived = useViewerDerivedState({ context, drawing: drawingForView });
 
   const baseSrc =
     drawingForView &&
-    getBaseImageSrc({
+    (getBaseImageSrc({
       drawing: drawingForView,
       activeDiscipline: derived.normalized.discipline,
       activeRegion: derived.normalized.region,
       activeRevision: derived.normalized.revision,
-    });
+    }) ??
+      drawingForView.image); // ⭐ root 기본 도면
 
   const overlayInfo =
     derived.normalized.overlay.enabled && drawingForView
@@ -88,14 +102,31 @@ export const ViewerPane = ({ context, setContext, layout = 'top' }: Props) => {
     }));
   };
 
+  useEffect(() => {
+    if (prevDrawingId.current && prevDrawingId.current !== context.activeDrawingId) {
+      setContext((prev) => ({
+        ...prev,
+        activeDiscipline: null,
+        activeRegion: null,
+        activeRevision: null,
+      }));
+    }
+
+    prevDrawingId.current = context.activeDrawingId;
+  }, [context.activeDrawingId, setContext]);
+
   return (
     <div className={styles.viewerRoot}>
-      {drawingForView?.disciplines && (
+      {drawingForView && (
         <ViewerContextSurface layout={layout}>
           {layout === 'top' ? (
             <>
               <ContextCard title="Select">
-                <ViewerSelectSection state={derived} setContext={setContext} />
+                <ViewerSelectSection
+                  state={derived}
+                  siteOptions={siteOptions}
+                  setContext={setContext}
+                />
               </ContextCard>
 
               <ContextCard title="Context">
@@ -105,7 +136,11 @@ export const ViewerPane = ({ context, setContext, layout = 'top' }: Props) => {
           ) : (
             <>
               <ContextCard title="Select">
-                <ViewerSelectSection state={derived} setContext={setContext} />
+                <ViewerSelectSection
+                  state={derived}
+                  siteOptions={siteOptions}
+                  setContext={setContext}
+                />
               </ContextCard>
 
               <ContextCard title="Context">

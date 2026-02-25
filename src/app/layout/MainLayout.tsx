@@ -1,5 +1,4 @@
 import type { ViewerContext } from '../../shared/types/context';
-import { ExplorerSidebar } from '../../features/navigation/ExplorerSidebar';
 import { ViewerPane } from '../../features/viewer/ViewerPane';
 import { TopBar } from './TopBar';
 
@@ -19,10 +18,6 @@ export function MainLayout({ context, setContext }: Props) {
       <TopBar context={context} onToggleContext={() => setShowContext((v) => !v)} />
 
       <div className={styles.mainRow}>
-        <aside className={styles.sidebar}>
-          <ExplorerSidebar setContext={setContext} activeDrawingId={context.activeDrawingId} />
-        </aside>
-
         <main className={styles.viewer}>
           <ViewerPane context={context} setContext={setContext} />
         </main>

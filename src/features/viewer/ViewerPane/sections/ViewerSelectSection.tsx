@@ -1,13 +1,35 @@
+import type { ViewerContext } from '../../../../shared/types/context';
 import { ControlSelectCell } from '../cells/ControlSelectCell';
 import { ControlCheckboxCell } from '../cells/ControlcheckboxCell';
+import type { SelectOption, ViewerDerivedState } from '../hooks/useViewerDerivedState';
 
-export const ViewerSelectSection = ({ state, setContext }: any) => {
+type Props = {
+  state: ViewerDerivedState;
+  siteOptions: SelectOption[];
+  setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
+};
+export const ViewerSelectSection = ({ state, siteOptions, setContext }: Props) => {
   const { normalized, options, availability, activeRevisionData } = state;
 
   const revisionSelectValue = normalized.revision ?? activeRevisionData?.version ?? null;
 
   return (
     <>
+      <ControlSelectCell
+        label="공간"
+        value={normalized.site}
+        options={siteOptions}
+        onChange={(v) =>
+          setContext((p: ViewerContext) => ({
+            ...p,
+            activeDrawingId: v,
+            activeDiscipline: null,
+            activeRegion: null,
+            activeRevision: null,
+          }))
+        }
+      />
+
       <ControlSelectCell
         label="공종"
         value={normalized.discipline}
