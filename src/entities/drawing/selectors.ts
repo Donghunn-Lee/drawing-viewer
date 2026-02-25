@@ -19,61 +19,51 @@ export type OverlayImage = {
   imageTransform?: Transform;
 };
 
-// NOTE: legacy selector from early site-based exploration
-// kept for reference during MVP iteration, may be removed later
-export const getSiteList = (metadata: Metadata) => {
-  const root = Object.values(metadata.drawings).find((d) => d.parent === null);
-  if (!root) return [];
+// -----------------------------------------------------------------------------
+// Base image selection
+// -----------------------------------------------------------------------------
 
-  return Object.values(metadata.drawings)
-    .filter((d) => d.parent === root.id)
-    .map((d) => ({ id: d.id, name: d.name }));
-};
-
-export function getBaseImageSrc({
+// Resolves the base drawing image to render based on the current viewer context.
+// This logic is rendering-oriented and may differ from domain-level "latest" rules.
+export const getBaseImageSrc = ({
   drawing,
   activeDiscipline,
   activeRegion,
   activeRevision,
-}: GetImageSrcParams): string {
-  // basic drawing image as default
+}: GetImageSrcParams): string => {
+  // No discipline selected: fall back to the drawing image
   if (!activeDiscipline) {
     return `/drawings/${drawing.image}`;
   }
 
   const discipline = drawing.disciplines?.[activeDiscipline];
-
-  // fallback if discipline is invalid
   if (!discipline) {
     return `/drawings/${drawing.image}`;
   }
 
-  // region-based discipline (e.g. structural drawings)
+  // Region-based discipline (e.g. structural drawings)
   if (discipline.regions && activeRegion) {
     const region = discipline.regions[activeRegion];
-
-    // fallback if region is invalid
     if (!region) {
       return `/drawings/${drawing.image}`;
     }
 
-    const regionRevisions = region.revisions ?? [];
+    const revisions = region.revisions ?? [];
 
-    // if region revision is selected, use it
+    // Prefer explicitly selected revision
     if (activeRevision) {
-      const selected = regionRevisions.find((r) => r.version === activeRevision);
+      const selected = revisions.find((r) => r.version === activeRevision);
       if (selected) {
         return `/drawings/${selected.image}`;
       }
     }
 
-    // if no revision selected, fallback to last revision
-    // NOTE: rendering fallback only, not domain-level "latest"
-    if (regionRevisions.length > 0) {
-      return `/drawings/${regionRevisions[regionRevisions.length - 1].image}`;
+    // Fallback to the last revision for rendering purposes
+    if (revisions.length > 0) {
+      return `/drawings/${revisions[revisions.length - 1].image}`;
     }
 
-    // if region has no revisions, fallback to discipline image
+    // If the region has no revisions, fall back to the discipline image
     if (discipline.image) {
       return `/drawings/${discipline.image}`;
     }
@@ -81,7 +71,7 @@ export function getBaseImageSrc({
 
   const revisions = discipline.revisions ?? [];
 
-  // if revision is selected, use it
+  // Prefer explicitly selected revision
   if (activeRevision) {
     const selected = revisions.find((r) => r.version === activeRevision);
     if (selected) {
@@ -89,66 +79,27 @@ export function getBaseImageSrc({
     }
   }
 
-  // if no revision selected, fallback to last revision
+  // Fallback to the last revision
   if (revisions.length > 0) {
     return `/drawings/${revisions[revisions.length - 1].image}`;
   }
 
-  // if no revisions, use discipline image
+  // No revisions: use discipline image if available
   if (discipline.image) {
     return `/drawings/${discipline.image}`;
   }
 
-  // final fallback: drawing image
+  // Final fallback: drawing image
   return `/drawings/${drawing.image}`;
-}
+};
 
-// NOTE: overlay always uses architectural reference image
-export function getOverlayImageSrc({
-  drawing,
-  activeDiscipline,
-  activeRegion,
-  activeRevision,
-}: GetImageSrcParams): string | null {
-  const disciplines = drawing.disciplines;
-  if (!disciplines || !activeDiscipline) return null;
+// -----------------------------------------------------------------------------
+// Overlay image resolution
+// -----------------------------------------------------------------------------
 
-  const discipline = disciplines[activeDiscipline];
-  if (!discipline) return null;
-
-  // region-based overlay (e.g. structural drawings)
-  if (discipline.regions && activeRegion) {
-    const region = discipline.regions[activeRegion];
-    if (!region) return null;
-
-    const revisions = region.revisions ?? [];
-
-    // prefer selected region revision reference
-    if (activeRevision) {
-      const selected = revisions.find((r) => r.version === activeRevision);
-      if (selected?.imageTransform?.relativeTo) {
-        return `/drawings/${selected.imageTransform.relativeTo}`;
-      }
-    }
-
-    // fallback to last region revision reference
-    const latest = revisions[revisions.length - 1];
-    if (latest?.imageTransform?.relativeTo) {
-      return `/drawings/${latest.imageTransform.relativeTo}`;
-    }
-  }
-
-  // discipline-level architectural reference
-  if (discipline.imageTransform?.relativeTo) {
-    return `/drawings/${discipline.imageTransform.relativeTo}`;
-  }
-
-  return null;
-}
-
-// Overlay reference image + transform for aligning the active drawing image.
-// NOTE: overlay is the reference image pointed by relativeTo.
-// imageTransform is used to draw the active image aligned onto that reference.
+// Resolves the reference image used as an overlay and its transform.
+// The overlay represents the image referenced by `relativeTo`, and the transform
+// is applied when aligning the active drawing image to that reference.
 export const getOverlayImage = ({
   drawing,
   activeDiscipline,
@@ -161,7 +112,7 @@ export const getOverlayImage = ({
   const discipline = disciplines[activeDiscipline];
   if (!discipline) return null;
 
-  // Region revision case (e.g. structural regions)
+  // Region-based discipline
   if (discipline.regions && activeRegion) {
     const region = discipline.regions[activeRegion];
     if (!region) return null;
@@ -180,7 +131,7 @@ export const getOverlayImage = ({
       }
     }
 
-    // Fallback to last revision
+    // Fallback to the last revision
     const latest = revisions[revisions.length - 1];
     const relativeTo = latest?.imageTransform?.relativeTo;
     if (relativeTo) {
@@ -193,7 +144,7 @@ export const getOverlayImage = ({
     return null;
   }
 
-  // Discipline-level reference
+  // Discipline-level reference image
   const relativeTo = discipline.imageTransform?.relativeTo;
   if (!relativeTo) return null;
 
@@ -219,13 +170,15 @@ type ResolvedRevisionContext =
       message?: string;
     };
 
-// NOTE: metadata date is treated as the only reliable "latest" signal
+// Parses a revision date string into a comparable timestamp.
+// Invalid dates are treated as missing.
 const parseDate = (date: string) => {
   const d = new Date(date);
   return Number.isNaN(d.getTime()) ? null : d.getTime();
 };
 
-// NOTE: used for context display, not for rendering fallback
+// Determines the latest revision by date.
+// Used for context display, not for rendering fallback.
 const getLatestByDate = (revisions: Revision[]): Revision | null => {
   if (revisions.length === 0) return null;
 
@@ -241,12 +194,12 @@ export const resolveRevisionContext = (
   const { activeDrawingId, activeDiscipline, activeRegion, activeRevision } = context;
 
   if (!activeDrawingId) {
-    return { kind: 'empty', message: '도면을 선택해주세요.' };
+    return { kind: 'empty', message: 'Please select a drawing.' };
   }
 
   const drawing = metadata.drawings[activeDrawingId];
   if (!drawing) {
-    return { kind: 'empty', message: '도면 정보를 찾을 수 없습니다.' };
+    return { kind: 'empty', message: 'Drawing data not found.' };
   }
 
   if (!activeDiscipline) {
@@ -257,7 +210,7 @@ export const resolveRevisionContext = (
       regionName: null,
       selectedRevision: null,
       latestRevision: null,
-      message: '공종을 선택하면 리비전 정보를 확인할 수 있습니다.',
+      message: 'Select a discipline to view revision information.',
     };
   }
 
@@ -270,11 +223,11 @@ export const resolveRevisionContext = (
       regionName: null,
       selectedRevision: null,
       latestRevision: null,
-      message: '해당 공종 데이터가 없습니다.',
+      message: 'No data available for the selected discipline.',
     };
   }
 
-  // region-based discipline (structural drawings)
+  // Region-based discipline
   if (discipline.regions) {
     if (!activeRegion) {
       return {
@@ -284,7 +237,7 @@ export const resolveRevisionContext = (
         regionName: null,
         selectedRevision: null,
         latestRevision: null,
-        message: 'Region이 있는 공종입니다. Region을 선택해주세요.',
+        message: 'This discipline requires a region selection.',
       };
     }
 
@@ -307,7 +260,7 @@ export const resolveRevisionContext = (
     };
   }
 
-  // non-region discipline
+  // Non-region discipline
   const revisions = discipline.revisions ?? [];
   const latest = getLatestByDate(revisions);
   const selected =
