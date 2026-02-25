@@ -1,5 +1,5 @@
 import type { ViewerContext } from '../../shared/types/context';
-import { ViewerPane } from '../../features/viewer/ViewerPane';
+import { ViewerPane } from '../../features/viewer/ViewerPane/ViewerPane';
 import { TopBar } from './TopBar';
 
 import styles from '../layout/MainLayout.module.css';
