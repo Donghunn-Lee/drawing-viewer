@@ -48,3 +48,20 @@
 .controlButton:active {
   background: #222;
 }
+
+.right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panelStateIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #e5e5e5;
+  border-radius: 6px;
+  pointer-events: none;
+}

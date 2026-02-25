@@ -4,18 +4,17 @@ import type { Metadata } from '../../../shared/types/metadata';
 import { resolveRevisionContext } from '../../../entities/drawing/selectors';
 
 import styles from './TopBar.module.css';
-import { SlidersHorizontal } from 'lucide-react';
+import { Eye, EyeOff, SlidersHorizontal } from 'lucide-react';
 
 const metadata = metadataJson as unknown as Metadata;
 
 type Props = {
   context: ViewerContext;
+  panelOpen: boolean;
   onTogglePanel: () => void;
-  onToggleSide?: () => void;
-  isSideLayout?: boolean;
 };
 
-export const TopBar = ({ context, onTogglePanel, onToggleSide, isSideLayout }: Props) => {
+export const TopBar = ({ context, panelOpen, onTogglePanel }: Props) => {
   const resolved = resolveRevisionContext(metadata, context);
 
   return (
@@ -25,11 +24,25 @@ export const TopBar = ({ context, onTogglePanel, onToggleSide, isSideLayout }: P
       </div>
 
       <div className={styles.right}>
-        <button onClick={onTogglePanel} className={styles.controlButton}>
+        {/* 상태 표시용 아이콘 (비클릭) */}
+        <span
+          className={styles.panelStateIndicator}
+          aria-hidden
+          title={panelOpen ? 'Controls visible' : 'Controls hidden'}
+        >
+          {panelOpen ? <Eye size={16} /> : <EyeOff size={16} />}
+        </span>
+
+        {/* 실제 액션 버튼 */}
+        <button
+          onClick={onTogglePanel}
+          className={styles.controlButton}
+          aria-pressed={panelOpen}
+          aria-label={panelOpen ? 'Hide controls' : 'Show controls'}
+        >
           <SlidersHorizontal size={16} />
           <span>Control</span>
         </button>
-        {isSideLayout && <button onClick={onToggleSide}>패널 위치 전환</button>}
       </div>
     </div>
   );

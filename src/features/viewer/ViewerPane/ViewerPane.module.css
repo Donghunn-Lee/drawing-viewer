@@ -33,11 +33,11 @@
 }
 
 .viewerSide.left {
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 400px 1fr;
 }
 
 .viewerSide.right {
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr 400px;
 }
 
 .viewerSide.left.closed {
@@ -48,7 +48,7 @@
   grid-template-columns: 1fr 0;
 }
 
-/* grid placement */
+/* ---------- grid placement ---------- */
 
 .viewerSide .controlsPanel {
   grid-column: 1;
@@ -81,9 +81,10 @@
 }
 
 .controlsTop {
+  padding: 2% 4%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 12px;
+  column-gap: 4%;
   border-bottom: 1px solid #2a2a2a;
   background: #1a1a1a;
 }
@@ -92,6 +93,7 @@
   height: 100%;
   overflow: auto;
   background: #1a1a1a;
+  position: relative;
 }
 
 /* =========================
@@ -111,6 +113,12 @@
 
 .contextCard > * {
   min-width: 0;
+}
+
+.viewerSide.right .contextCard {
+  padding-left: 36px;
+  padding-top: 36px;
+  text-align: left;
 }
 
 .cardTitle {
@@ -139,7 +147,7 @@
 }
 
 .label {
-  width: 120px;
+  width: 30%;
   flex-shrink: 0;
   height: 22px;
   display: flex;
@@ -173,6 +181,10 @@
   text-overflow: ellipsis;
 }
 
+.controlCell select:focus {
+  outline: 1px solid rgb(66, 66, 66);
+}
+
 .checkbox {
   display: inline-flex;
   align-items: center;
@@ -189,4 +201,42 @@
 .canvasWrapper {
   min-width: 0;
   min-height: 0;
+}
+
+/* =========================
+     Panel Toggle Button
+     ========================= */
+
+.panelToggleButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.viewerSide.right .panelToggleButton {
+  left: 10px;
+  right: auto;
+}
+
+.panelToggleButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  margin: 0px;
+  background: transparent;
+  border-radius: 6px;
+  color: #cfcfcf;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.panelToggleButton:hover {
+  background: #2a2a2a;
+  border-color: #3a3a3a;
+  color: #fff;
+}
+
+.panelToggleButton:focus {
+  outline: 2px;
 }

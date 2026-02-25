@@ -24,9 +24,10 @@ type Props = {
   context: ViewerContext;
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
   viewerLayout: ViewerLayout;
+  setViewerLayout: React.Dispatch<React.SetStateAction<ViewerLayout>>;
 };
 
-export const ViewerPane = ({ context, setContext, viewerLayout }: Props) => {
+export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout }: Props) => {
   const prevDrawingId = useRef<string | null>(null);
 
   const isTop = viewerLayout.mode === 'top';
@@ -133,7 +134,7 @@ export const ViewerPane = ({ context, setContext, viewerLayout }: Props) => {
     >
       {showControls && (
         <div className={styles.controlsPanel}>
-          <ViewerControlsPanel layout={viewerLayout.mode}>
+          <ViewerControlsPanel layout={viewerLayout} setViewerLayout={setViewerLayout}>
             <ContextCard title="Select">
               <ViewerSelectSection
                 state={derived}

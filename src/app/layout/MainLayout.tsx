@@ -41,24 +41,18 @@ export function MainLayout({ context, setContext }: Props) {
     setViewerLayout((prev) => ({ ...prev, open: !prev.open }));
   };
 
-  const toggleSide = () => {
-    setViewerLayout((prev) =>
-      prev.mode === 'side' ? { ...prev, side: prev.side === 'left' ? 'right' : 'left' } : prev,
-    );
-  };
-
   return (
     <div className={styles.layoutRoot}>
-      <TopBar
-        context={context}
-        onTogglePanel={togglePanel}
-        isSideLayout={viewerLayout.mode === 'side'}
-        onToggleSide={toggleSide}
-      />
+      <TopBar context={context} panelOpen={viewerLayout.open} onTogglePanel={togglePanel} />
 
       <div className={styles.mainRow}>
         <main className={styles.viewer}>
-          <ViewerPane context={context} setContext={setContext} viewerLayout={viewerLayout} />
+          <ViewerPane
+            context={context}
+            setContext={setContext}
+            viewerLayout={viewerLayout}
+            setViewerLayout={setViewerLayout}
+          />
         </main>
       </div>
     </div>
