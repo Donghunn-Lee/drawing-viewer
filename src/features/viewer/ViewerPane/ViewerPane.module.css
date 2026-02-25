@@ -1,35 +1,52 @@
+/* view */
+
 .viewerRoot {
   position: relative;
   height: 100%;
   display: grid;
 }
 
-/* side layout */
 .viewerSide {
   grid-template-columns: 360px 1fr;
+}
+
+.viewerSideLeft {
+  grid-template-columns: 360px 1fr;
+}
+
+.viewerSideRight {
+  grid-template-columns: 1fr 360px;
 }
 
 .viewerSideClosed {
   grid-template-columns: 0 1fr;
 }
 
-/* top layout */
 .viewerTop {
   grid-template-rows: auto 1fr;
 }
 
-/* ViewerControlsLayout */
+/* ControlsPanal */
 
 .controlsTop {
+  display: grid;
   border-bottom: 1px solid #2a2a2a;
+  grid-template-columns: 1fr 1fr;
   background: #1a1a1a;
 }
 
 .controlsSide {
   height: 100%;
   overflow: auto;
-  border-left: 1px solid #2a2a2a;
   background: #1a1a1a;
+}
+
+.controlsSide.left {
+  border-right: 1px solid #2a2a2a;
+}
+
+.controlsSide.right {
+  border-left: 1px solid #2a2a2a;
 }
 
 /* Card */

@@ -27,6 +27,7 @@ export const ViewerPane = ({ context, setContext }: Props) => {
   const prevDrawingId = useRef<string | null>(null);
 
   const [panelOpen, setPanelOpen] = useState(true);
+  const [side, setSide] = useState<'left' | 'right'>('left');
   const [layout, setLayout] = useState<'top' | 'side'>(() =>
     window.innerWidth / window.innerHeight > 1.2 ? 'side' : 'top',
   );
@@ -141,7 +142,7 @@ export const ViewerPane = ({ context, setContext }: Props) => {
           : styles.viewerTop,
       )}
     >
-      <ViewerControlsPanel layout={layout} open={panelOpen}>
+      <ViewerControlsPanel layout={layout} open={panelOpen} side={side}>
         <ContextCard title="Select">
           <ViewerSelectSection state={derived} siteOptions={siteOptions} setContext={setContext} />
         </ContextCard>
