@@ -1,12 +1,11 @@
 import styles from './ViewerPane.module.css';
 
 type Props = {
-  layout: 'top' | 'side';
   children: React.ReactNode;
 };
 
-export const ViewerContextSurface = ({ layout, children }: Props) => {
-  return (
-    <div className={layout === 'top' ? styles.surfaceTop : styles.surfaceSide}>{children}</div>
-  );
+export const ViewerControlsLayout = ({ children }: Props) => {
+  const isLandscape = window.innerWidth / window.innerHeight > 1.2;
+
+  return <div className={isLandscape ? styles.controlsSide : styles.controlsTop}>{children}</div>;
 };

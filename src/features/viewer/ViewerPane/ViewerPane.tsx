@@ -7,7 +7,7 @@ import metadataJson from '../../../data/metadata.json';
 import { DrawingCanvas } from './DrawingCanvas';
 import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
 
-import { ViewerContextSurface } from './ViewerControlsLayout';
+import { ViewerControlsLayout } from './ViewerControlsLayout';
 import { ViewerSelectSection } from './sections/ViewerSelectSection';
 import { ViewerContextSection } from './sections/ViewerContextSections';
 import { useViewerDerivedState } from './hooks/useViewerDerivedState';
@@ -20,10 +20,9 @@ const metadata = metadataJson as unknown as Metadata;
 type Props = {
   context: ViewerContext;
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
-  layout?: 'top' | 'side';
 };
 
-export const ViewerPane = ({ context, setContext, layout = 'top' }: Props) => {
+export const ViewerPane = ({ context, setContext }: Props) => {
   const prevDrawingId = useRef<string | null>(null);
 
   const rootDrawing = useMemo(
@@ -118,37 +117,19 @@ export const ViewerPane = ({ context, setContext, layout = 'top' }: Props) => {
   return (
     <div className={styles.viewerRoot}>
       {drawingForView && (
-        <ViewerContextSurface layout={layout}>
-          {layout === 'top' ? (
-            <>
-              <ContextCard title="Select">
-                <ViewerSelectSection
-                  state={derived}
-                  siteOptions={siteOptions}
-                  setContext={setContext}
-                />
-              </ContextCard>
+        <ViewerControlsLayout>
+          <ContextCard title="Select">
+            <ViewerSelectSection
+              state={derived}
+              siteOptions={siteOptions}
+              setContext={setContext}
+            />
+          </ContextCard>
 
-              <ContextCard title="Context">
-                <ViewerContextSection context={context} revision={derived.activeRevisionData} />
-              </ContextCard>
-            </>
-          ) : (
-            <>
-              <ContextCard title="Select">
-                <ViewerSelectSection
-                  state={derived}
-                  siteOptions={siteOptions}
-                  setContext={setContext}
-                />
-              </ContextCard>
-
-              <ContextCard title="Context">
-                <ViewerContextSection context={context} revision={derived.activeRevisionData} />
-              </ContextCard>
-            </>
-          )}
-        </ViewerContextSurface>
+          <ContextCard title="Context">
+            <ViewerContextSection context={context} revision={derived.activeRevisionData} />
+          </ContextCard>
+        </ViewerControlsLayout>
       )}
 
       <div className={styles.canvasWrapper}>

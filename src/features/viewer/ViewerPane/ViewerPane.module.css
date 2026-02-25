@@ -5,24 +5,20 @@
   min-height: 0;
 }
 
-/* ViewerContextSurface */
+/* ViewerControlsLayout */
 
-.surfaceTop {
+.controlsTop {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   padding: 10px 14px;
-  border-bottom: 1px solid #2a2a2a;
-  background: #1a1a1a;
 }
 
-.surfaceSide {
+.controlsSide {
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 10px 14px;
-  border-bottom: 1px solid #2a2a2a;
-  background: #1a1a1a;
 }
 
 /* Card */
