@@ -7,7 +7,7 @@ import metadataJson from '../../../data/metadata.json';
 import { DrawingCanvas } from './DrawingCanvas';
 import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
 
-import { ViewerControlsLayout } from './ViewerControlsLayout';
+import { ViewerControlsPanel } from './ViewerControlsPanel';
 import { ViewerSelectSection } from './sections/ViewerSelectSection';
 import { ViewerContextSection } from './sections/ViewerContextSections';
 import { useViewerDerivedState } from './hooks/useViewerDerivedState';
@@ -117,7 +117,7 @@ export const ViewerPane = ({ context, setContext }: Props) => {
   return (
     <div className={styles.viewerRoot}>
       {drawingForView && (
-        <ViewerControlsLayout>
+        <ViewerControlsPanel>
           <ContextCard title="Select">
             <ViewerSelectSection
               state={derived}
@@ -129,7 +129,7 @@ export const ViewerPane = ({ context, setContext }: Props) => {
           <ContextCard title="Context">
             <ViewerContextSection context={context} revision={derived.activeRevisionData} />
           </ContextCard>
-        </ViewerControlsLayout>
+        </ViewerControlsPanel>
       )}
 
       <div className={styles.canvasWrapper}>
