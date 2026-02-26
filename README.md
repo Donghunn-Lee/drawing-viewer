@@ -12,7 +12,7 @@ npm run dev
 
 ## 기술 스택
 
-- React 18
+- React 19
 - TypeScript
 - Vite
 - Canvas API
