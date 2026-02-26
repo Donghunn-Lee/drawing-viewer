@@ -90,6 +90,7 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
       .filter((d) => d.parent === drawingForView.id && d.position)
       .map((child) => ({
         vertices: child.position!.vertices,
+        name: child.name,
       }));
   }, [drawingForView]);
 

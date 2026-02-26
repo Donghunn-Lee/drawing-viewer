@@ -12,6 +12,7 @@ type Props = {
   polygons: StagePolygon[];
   onPolygonClick?: (index: number) => void;
   setHoveredIndex: (v: number | null) => void;
+  setHoverPoint: React.Dispatch<React.SetStateAction<{ wx: number; wy: number } | null>>;
 };
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
@@ -25,6 +26,7 @@ export const useCanvasInteractions = ({
   polygons,
   onPolygonClick,
   setHoveredIndex,
+  setHoverPoint,
 }: Props) => {
   const dragRef = useRef({
     dragging: false,
@@ -112,6 +114,7 @@ export const useCanvasInteractions = ({
       const wy = (e.clientY - rect.top - view.offsetY) / view.scale;
       const hit = hitTestPolygon(ctx, polygons, wx, wy);
       setHoveredIndex(hit);
+      setHoverPoint(hit !== null ? { wx, wy } : null);
       canvas.style.cursor = hit !== null ? 'pointer' : 'grab';
     };
 

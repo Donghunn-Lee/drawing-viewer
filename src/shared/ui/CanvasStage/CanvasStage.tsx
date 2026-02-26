@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { drawStage } from './drawStage';
 import { useCanvasView } from './useCanvasView';
 import { useCanvasInteractions } from './useCanvasInteractions';
-import type { StageOverlay, StagePolygon } from './types';
+import type { StageOverlay, StagePolygon, ViewState } from './types';
 import { CanvasStageControls } from './CanvasStageControls';
 
 type Props = {
@@ -23,6 +23,11 @@ const loadImage = (src: string): Promise<HTMLImageElement> => {
   });
 };
 
+const worldToScreen = (wx: number, wy: number, view: ViewState) => ({
+  x: wx * view.scale + view.offsetX,
+  y: wy * view.scale + view.offsetY,
+});
+
 export const CanvasStage = ({ baseSrc, overlays = [], polygons = [], onPolygonClick }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -31,6 +36,7 @@ export const CanvasStage = ({ baseSrc, overlays = [], polygons = [], onPolygonCl
   const [baseImg, setBaseImg] = useState<HTMLImageElement | null>(null);
   const [overlayImgs, setOverlayImgs] = useState<Record<string, HTMLImageElement>>({});
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoverPoint, setHoverPoint] = useState<{ wx: number; wy: number } | null>(null);
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
@@ -70,6 +76,7 @@ export const CanvasStage = ({ baseSrc, overlays = [], polygons = [], onPolygonCl
     polygons,
     onPolygonClick,
     setHoveredIndex,
+    setHoverPoint,
   });
 
   useEffect(() => {
@@ -99,6 +106,25 @@ export const CanvasStage = ({ baseSrc, overlays = [], polygons = [], onPolygonCl
         onReset={resetView}
       />
       <canvas ref={canvasRef} style={{ width: '100%', height: '100%', cursor: 'grab' }} />
+      {hoveredIndex !== null && hoverPoint && view && (
+        <div
+          style={{
+            position: 'absolute',
+            left: worldToScreen(hoverPoint.wx, hoverPoint.wy, view).x + 8,
+            top: worldToScreen(hoverPoint.wx, hoverPoint.wy, view).y + 8,
+            background: 'rgba(0,0,0,0.75)',
+            color: '#fff',
+            padding: '4px 8px',
+            fontSize: 12,
+            borderRadius: 4,
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+            zIndex: 20,
+          }}
+        >
+          {polygons[hoveredIndex]?.name}
+        </div>
+      )}
     </div>
   );
 };

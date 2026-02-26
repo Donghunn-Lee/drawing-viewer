@@ -7,6 +7,7 @@ export type StageOverlay = {
 };
 
 export type StagePolygon = MetaPolygon & {
+  name?: string;
   stroke?: string;
   fill?: string;
   strokeWidth?: number;
