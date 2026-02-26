@@ -270,3 +270,91 @@
   color: #8a8a8a;
   letter-spacing: 0.02em;
 }
+
+/* ---- Overlay Blend Slider ---- */
+
+.blendRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.blendLabel {
+  font-size: 11px;
+  color: #8a8a8a;
+  user-select: none;
+}
+
+.blendValue {
+  font-size: 11px;
+  color: #cfcfcf;
+  user-select: none;
+  min-width: 36px;
+  text-align: right;
+}
+
+.blendSlider {
+  flex: 1;
+  min-width: 0;
+  height: 16px;
+  appearance: none;
+  background: transparent;
+}
+
+/* track */
+.blendSlider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+}
+
+.blendSlider::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+}
+
+/* thumb */
+.blendSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px; /* centers thumb on 6px track */
+  border-radius: 999px;
+  background: #cfcfcf;
+  border: 1px solid #555;
+}
+
+.blendSlider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #cfcfcf;
+  border: 1px solid #555;
+}
+
+/* disabled */
+.controlCell[data-disabled='true'] .blendLabel,
+.controlCell[data-disabled='true'] .blendValue {
+  color: #666;
+}
+
+.controlCell[data-disabled='true'] .blendSlider::-webkit-slider-runnable-track {
+  opacity: 0.6;
+}
+
+.controlCell[data-disabled='true'] .blendSlider::-moz-range-track {
+  opacity: 0.6;
+}
+
+.controlCell[data-disabled='true'] .blendSlider::-webkit-slider-thumb {
+  opacity: 0.6;
+}
+
+.controlCell[data-disabled='true'] .blendSlider::-moz-range-thumb {
+  opacity: 0.6;
+}

@@ -8,6 +8,8 @@ import { ControlSelectCell } from '../cells/ControlSelectCell';
 
 import type { SelectOption, ViewerDerivedState } from '../hooks/useViewerDerivedState';
 
+import styles from '../ViewerPane.module.css';
+
 type Props = {
   state: ViewerDerivedState;
   siteOptions: SelectOption[];
@@ -31,6 +33,11 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
 
   const overlayFileName = overlayInfo ? overlayInfo.src.replace('/drawings/', '') : undefined;
 
+  const overlayOpacity = normalized.overlay.opacity ?? 0.5;
+  const overlayOpacityPercent = Math.round(overlayOpacity * 100);
+
+  const overlayControlsDisabled = !availability.overlay || !normalized.overlay.enabled;
+
   return (
     <>
       <ControlSelectCell
@@ -44,7 +51,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
             activeDiscipline: null,
             activeRegion: null,
             activeRevision: null,
-            overlay: { ...p.overlay, enabled: false },
+            overlay: { ...p.overlay, enabled: false, opacity: 0.5 },
           }))
         }
       />
@@ -60,7 +67,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
             activeDiscipline: v,
             activeRegion: null,
             activeRevision: null,
-            overlay: { ...p.overlay, enabled: false },
+            overlay: { ...p.overlay, enabled: false, opacity: 0.5 },
           }))
         }
       />
@@ -75,7 +82,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
             ...p,
             activeRegion: v,
             activeRevision: null,
-            overlay: { ...p.overlay, enabled: false },
+            overlay: { ...p.overlay, enabled: false, opacity: 0.5 },
           }))
         }
       />
@@ -89,7 +96,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
           setContext((p) => ({
             ...p,
             activeRevision: v,
-            overlay: { ...p.overlay, enabled: false },
+            overlay: { ...p.overlay, enabled: false, opacity: 0.5 },
           }))
         }
       />
@@ -106,6 +113,38 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
           }))
         }
       />
+
+      <div
+        className={styles.controlCell}
+        data-disabled={overlayControlsDisabled ? 'true' : undefined}
+      >
+        <span className={styles.label}>블렌드</span>
+
+        <div className={styles.blendRow}>
+          <span className={styles.blendLabel}>Current</span>
+
+          <input
+            className={styles.blendSlider}
+            type="range"
+            min={0}
+            max={100}
+            step={5}
+            value={overlayOpacityPercent}
+            disabled={overlayControlsDisabled}
+            onChange={(e) => {
+              const next = Number(e.target.value) / 100;
+              setContext((p) => ({
+                ...p,
+                overlay: { ...p.overlay, opacity: next },
+              }));
+            }}
+            aria-label="Blend current and overlay"
+          />
+
+          <span className={styles.blendLabel}>Overlay</span>
+          <span className={styles.blendValue}>{overlayOpacityPercent}%</span>
+        </div>
+      </div>
     </>
   );
 };
