@@ -4,6 +4,7 @@ import { useCanvasView } from './useCanvasView';
 import { useCanvasInteractions } from './useCanvasInteractions';
 import type { StageOverlay, StagePolygon, ViewState } from './types';
 import { CanvasStageControls } from './CanvasStageControls';
+import styles from './CanvasStageControls.module.css';
 
 type Props = {
   baseSrc: string;
@@ -98,7 +99,7 @@ export const CanvasStage = ({ baseSrc, overlays = [], polygons = [], onPolygonCl
   }, [baseImg, overlays, overlayImgs, polygons, hoveredIndex, view, viewport]);
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
+    <div ref={containerRef} className={styles.canvasRoot}>
       <CanvasStageControls
         zoomPercent={zoomPercent}
         onZoomIn={() => zoomBy(ZOOM_STEP)}
