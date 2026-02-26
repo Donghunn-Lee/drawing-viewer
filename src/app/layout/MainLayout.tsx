@@ -20,6 +20,20 @@ export function MainLayout({ context, setContext }: Props) {
 
   const [viewerLayout, setViewerLayout] = useState<ViewerLayout>(getInitialLayout);
 
+  const onResetSelection = () => {
+    setContext({
+      activeDrawingId: null,
+      activeDiscipline: null,
+      activeRegion: null,
+      activeRevision: null,
+      overlay: {
+        enabled: false,
+        targets: [],
+        opacity: 0.5,
+      },
+    });
+  };
+
   useEffect(() => {
     const onResize = () => {
       const isLandscape = window.innerWidth / window.innerHeight > 1;
@@ -43,7 +57,11 @@ export function MainLayout({ context, setContext }: Props) {
 
   return (
     <div className={styles.layoutRoot}>
-      <TopBar context={context} panelOpen={viewerLayout.open} onTogglePanel={togglePanel} />
+      <TopBar
+        panelOpen={viewerLayout.open}
+        onTogglePanel={togglePanel}
+        onResetSelection={onResetSelection}
+      />
 
       <div className={styles.mainRow}>
         <main className={styles.viewer}>

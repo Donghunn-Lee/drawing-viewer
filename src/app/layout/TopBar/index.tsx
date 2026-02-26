@@ -1,30 +1,26 @@
-import type { ViewerContext } from '../../../shared/types/context';
-import metadataJson from '../../../data/metadata.json';
-import type { Metadata } from '../../../shared/types/metadata';
-import { resolveRevisionContext } from '../../../entities/drawing/selectors';
-
-import styles from './TopBar.module.css';
 import { Eye, EyeOff, SlidersHorizontal } from 'lucide-react';
 
-const metadata = metadataJson as unknown as Metadata;
+import styles from './TopBar.module.css';
 
 type Props = {
-  context: ViewerContext;
   panelOpen: boolean;
   onTogglePanel: () => void;
+  onResetSelection: () => void;
 };
 
-export const TopBar = ({ context, panelOpen, onTogglePanel }: Props) => {
-  const resolved = resolveRevisionContext(metadata, context);
-
+export const TopBar = ({ panelOpen, onTogglePanel, onResetSelection }: Props) => {
   return (
     <div className={styles.topBar}>
-      <div className={styles.left}>
-        {resolved.kind === 'ok' ? resolved.drawingName : 'No drawing'}
+      <div
+        className={styles.left}
+        onClick={onResetSelection}
+        role="button"
+        aria-label="Reset selection"
+      >
+        Drawing Viewer
       </div>
 
       <div className={styles.right}>
-        {/* 상태 표시용 아이콘 (비클릭) */}
         <span
           className={styles.panelStateIndicator}
           aria-hidden
@@ -33,7 +29,6 @@ export const TopBar = ({ context, panelOpen, onTogglePanel }: Props) => {
           {panelOpen ? <Eye size={16} /> : <EyeOff size={16} />}
         </span>
 
-        {/* 실제 액션 버튼 */}
         <button
           onClick={onTogglePanel}
           className={styles.controlButton}
