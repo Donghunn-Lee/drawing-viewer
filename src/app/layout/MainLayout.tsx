@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import type { ViewerContext } from '../../shared/types/context';
 import type { ViewerLayout } from '../../shared/types/viewerLayout';
+
 import { ViewerPane } from '../../features/viewer/ViewerPane/ViewerPane';
 import { TopBar } from './TopBar';
 
@@ -34,6 +35,10 @@ export function MainLayout({ context, setContext }: Props) {
     });
   };
 
+  const togglePanel = () => {
+    setViewerLayout((prev) => ({ ...prev, open: !prev.open }));
+  };
+
   useEffect(() => {
     const onResize = () => {
       const isLandscape = window.innerWidth / window.innerHeight > 1;
@@ -50,10 +55,6 @@ export function MainLayout({ context, setContext }: Props) {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
-
-  const togglePanel = () => {
-    setViewerLayout((prev) => ({ ...prev, open: !prev.open }));
-  };
 
   return (
     <div className={styles.layoutRoot}>
