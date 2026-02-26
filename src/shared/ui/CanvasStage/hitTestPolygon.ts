@@ -1,8 +1,10 @@
-import type { StagePolygon } from './types';
 import type { Transform } from '../../types/metadata';
+
+import type { StagePolygon } from './types';
 
 const applyWorldTransform = (ctx: CanvasRenderingContext2D, t?: Transform) => {
   if (!t) return;
+
   ctx.translate(t.x, t.y);
   ctx.rotate(t.rotation);
   ctx.scale(t.scale, t.scale);
@@ -34,5 +36,6 @@ export const hitTestPolygon = (
 
     if (hit) return i;
   }
+
   return null;
 };

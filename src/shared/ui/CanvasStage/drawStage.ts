@@ -1,5 +1,6 @@
-import type { StageOverlay, StagePolygon, ViewState } from './types';
 import type { Transform } from '../../types/metadata';
+
+import type { StageOverlay, StagePolygon, ViewState } from './types';
 
 type Params = {
   ctx: CanvasRenderingContext2D;
@@ -21,6 +22,7 @@ const POLYGON_HOVER_STROKE_WIDTH = 4;
 
 const applyWorldTransform = (ctx: CanvasRenderingContext2D, t?: Transform) => {
   if (!t) return;
+
   ctx.translate(t.x, t.y);
   ctx.rotate(t.rotation);
   ctx.scale(t.scale, t.scale);

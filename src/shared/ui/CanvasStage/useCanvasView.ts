@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+
 import type { ViewState } from './types';
 
 type Params = {
@@ -15,6 +16,7 @@ const calcContainView = (
   viewportH: number,
 ): ViewState => {
   const scale = Math.min(viewportW / baseW, viewportH / baseH);
+
   return {
     scale,
     offsetX: (viewportW - baseW * scale) / 2,
@@ -33,13 +35,13 @@ export const useCanvasView = ({ baseImg, viewport }: Params) => {
   const computedView = useMemo(() => {
     if (!baseContainView) return null;
     return localView ?? baseContainView;
-  }, [localView, baseContainView]);
+  }, [baseContainView, localView]);
 
   const zoomBy = (factor: number) => {
     if (!computedView || !baseContainView) return;
 
-    const MIN = baseContainView.scale * 0.5;
-    const MAX = baseContainView.scale * 5;
+    const minScale = baseContainView.scale * 0.5;
+    const maxScale = baseContainView.scale * 5;
 
     const sx = viewport.width / 2;
     const sy = viewport.height / 2;
@@ -47,7 +49,7 @@ export const useCanvasView = ({ baseImg, viewport }: Params) => {
     const wx = (sx - computedView.offsetX) / computedView.scale;
     const wy = (sy - computedView.offsetY) / computedView.scale;
 
-    const nextScale = clamp(computedView.scale * factor, MIN, MAX);
+    const nextScale = clamp(computedView.scale * factor, minScale, maxScale);
 
     setLocalView({
       scale: nextScale,
@@ -64,7 +66,7 @@ export const useCanvasView = ({ baseImg, viewport }: Params) => {
   const zoomPercent = useMemo(() => {
     if (!computedView || !baseContainView) return null;
     return Math.round((computedView.scale / baseContainView.scale) * 100);
-  }, [computedView, baseContainView]);
+  }, [baseContainView, computedView]);
 
   useEffect(() => {
     if (!baseContainView) return;

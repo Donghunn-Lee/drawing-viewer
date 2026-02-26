@@ -1,4 +1,5 @@
 import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
+
 import styles from './CanvasStageControls.module.css';
 
 type Props = {

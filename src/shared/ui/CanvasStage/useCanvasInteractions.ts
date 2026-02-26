@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
-import type { StagePolygon, ViewState } from './types';
+
 import { hitTestPolygon } from './hitTestPolygon';
+import type { StagePolygon, ViewState } from './types';
 
 const DRAG_THRESHOLD = 5;
 
@@ -47,8 +48,8 @@ export const useCanvasInteractions = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const MIN = baseContainView.scale * 0.5;
-    const MAX = baseContainView.scale * 5;
+    const minScale = baseContainView.scale * 0.5;
+    const maxScale = baseContainView.scale * 5;
 
     const getWorld = (clientX: number, clientY: number) => {
       const rect = canvas.getBoundingClientRect();
@@ -61,12 +62,14 @@ export const useCanvasInteractions = ({
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+
       const factor = Math.exp(-e.deltaY * 0.0015);
       const { sx, sy, wx, wy } = getWorld(e.clientX, e.clientY);
 
       setView((prev) => {
         const cur = prev!;
-        const nextScale = clamp(cur.scale * factor, MIN, MAX);
+        const nextScale = clamp(cur.scale * factor, minScale, maxScale);
+
         return {
           scale: nextScale,
           offsetX: sx - wx * nextScale,
@@ -112,9 +115,11 @@ export const useCanvasInteractions = ({
 
     const endDrag = (e: PointerEvent) => {
       if (dragRef.current.pointerId !== e.pointerId) return;
+
       dragRef.current.dragging = false;
       dragRef.current.pointerId = null;
       canvas.style.cursor = 'grab';
+
       try {
         canvas.releasePointerCapture(e.pointerId);
       } catch {}
@@ -124,9 +129,11 @@ export const useCanvasInteractions = ({
       const rect = canvas.getBoundingClientRect();
       const wx = (e.clientX - rect.left - view.offsetX) / view.scale;
       const wy = (e.clientY - rect.top - view.offsetY) / view.scale;
+
       const hit = hitTestPolygon(ctx, polygons, wx, wy);
       setHoveredIndex(hit);
       setHoverPoint(hit !== null ? { wx, wy } : null);
+
       canvas.style.cursor = hit !== null ? 'pointer' : 'grab';
     };
 
@@ -137,6 +144,7 @@ export const useCanvasInteractions = ({
       const rect = canvas.getBoundingClientRect();
       const wx = (e.clientX - rect.left - view.offsetX) / view.scale;
       const wy = (e.clientY - rect.top - view.offsetY) / view.scale;
+
       const hit = hitTestPolygon(ctx, polygons, wx, wy);
       if (hit !== null) onPolygonClick(hit);
     };
@@ -158,5 +166,15 @@ export const useCanvasInteractions = ({
       canvas.removeEventListener('mousemove', onMove);
       canvas.removeEventListener('click', onClick);
     };
-  }, [view, polygons, onPolygonClick]);
+  }, [
+    baseContainView,
+    baseImg,
+    canvasRef,
+    onPolygonClick,
+    polygons,
+    setHoverPoint,
+    setHoveredIndex,
+    setView,
+    view,
+  ]);
 };

@@ -1,9 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { drawStage } from './drawStage';
-import { useCanvasView } from './useCanvasView';
-import { useCanvasInteractions } from './useCanvasInteractions';
+
 import type { StageOverlay, StagePolygon, ViewState } from './types';
+
 import { CanvasStageControls } from './CanvasStageControls';
+import { drawStage } from './drawStage';
+import { useCanvasInteractions } from './useCanvasInteractions';
+import { useCanvasView } from './useCanvasView';
+
 import styles from './CanvasStageControls.module.css';
 
 type Props = {
@@ -41,12 +44,14 @@ export const CanvasStage = ({ baseSrc, overlays = [], polygons = [], onPolygonCl
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
+
     const ro = new ResizeObserver(([e]) => {
       setViewport({
         width: Math.floor(e.contentRect.width),
         height: Math.floor(e.contentRect.height),
       });
     });
+
     ro.observe(containerRef.current);
     return () => ro.disconnect();
   }, []);
