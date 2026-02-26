@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import type { StagePolygon, ViewState } from './types';
 import { hitTestPolygon } from './hitTestPolygon';
 
+const DRAG_THRESHOLD = 5;
+
 type Props = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   view: ViewState | null;
@@ -30,6 +32,7 @@ export const useCanvasInteractions = ({
 }: Props) => {
   const dragRef = useRef({
     dragging: false,
+    moved: false,
     startX: 0,
     startY: 0,
     startOffsetX: 0,
@@ -74,6 +77,7 @@ export const useCanvasInteractions = ({
 
     const onPointerDown = (e: PointerEvent) => {
       dragRef.current.dragging = true;
+      dragRef.current.moved = false;
       dragRef.current.pointerId = e.pointerId;
       dragRef.current.startX = e.clientX;
       dragRef.current.startY = e.clientY;
@@ -90,6 +94,14 @@ export const useCanvasInteractions = ({
 
       const dx = e.clientX - dragRef.current.startX;
       const dy = e.clientY - dragRef.current.startY;
+
+      if (!dragRef.current.moved) {
+        if (Math.hypot(dx, dy) > DRAG_THRESHOLD) {
+          dragRef.current.moved = true;
+        } else {
+          return;
+        }
+      }
 
       setView((prev) => ({
         ...prev!,
@@ -120,6 +132,8 @@ export const useCanvasInteractions = ({
 
     const onClick = (e: MouseEvent) => {
       if (!onPolygonClick) return;
+      if (dragRef.current.moved) return;
+
       const rect = canvas.getBoundingClientRect();
       const wx = (e.clientX - rect.left - view.offsetX) / view.scale;
       const wy = (e.clientY - rect.top - view.offsetY) / view.scale;
