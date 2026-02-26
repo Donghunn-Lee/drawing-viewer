@@ -8,7 +8,11 @@ type Params = {
   drawing: Drawing | null;
 };
 
-export type SelectOption = { value: string; label: string };
+export type SelectOption = {
+  value: string;
+  label: string;
+  isLatest?: boolean;
+};
 
 export type ViewerDerivedState = ReturnType<typeof useViewerDerivedState>;
 
@@ -47,12 +51,13 @@ export const useViewerDerivedState = ({ context, drawing }: Params) => {
 
     const getNum = (v: string) => Number(v.match(/\d+/)?.[0] ?? 0);
 
-    return [...revisions]
-      .sort((a, b) => getNum(b.version) - getNum(a.version))
-      .map((r, i) => ({
-        value: r.version,
-        label: `${r.version}${i === 0 ? ' (최신)' : ''}`,
-      }));
+    const sorted = [...revisions].sort((a, b) => getNum(b.version) - getNum(a.version));
+
+    return sorted.map((r, i) => ({
+      value: r.version,
+      label: r.version,
+      isLatest: i === 0,
+    }));
   }, [activeDisciplineData, normalized.region]);
 
   const activeRevisionData = useMemo(() => {
@@ -83,6 +88,14 @@ export const useViewerDerivedState = ({ context, drawing }: Params) => {
     });
   }, [drawing, normalized.discipline, normalized.region]);
 
+  const isActiveRevisionLatest = useMemo(() => {
+    if (!activeRevisionData) return false;
+
+    return (
+      revisionOptions.find((opt) => opt.value === activeRevisionData.version)?.isLatest ?? false
+    );
+  }, [activeRevisionData, revisionOptions]);
+
   return {
     normalized,
     options: {
@@ -98,5 +111,6 @@ export const useViewerDerivedState = ({ context, drawing }: Params) => {
       overlay: overlayAvailable,
     },
     activeRevisionData,
+    isActiveRevisionLatest,
   };
 };

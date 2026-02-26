@@ -152,6 +152,7 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
                 context={context}
                 drawing={drawingForView}
                 revision={derived.activeRevisionData}
+                isLatest={derived.isActiveRevisionLatest}
               />
             </ContextCard>
           </ViewerControlsPanel>

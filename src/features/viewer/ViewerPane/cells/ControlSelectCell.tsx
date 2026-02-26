@@ -1,9 +1,5 @@
+import type { SelectOption } from '../hooks/useViewerDerivedState';
 import styles from '../ViewerPane.module.css';
-
-type Option = {
-  value: string;
-  label: string;
-};
 
 type Props =
   | {
@@ -14,7 +10,7 @@ type Props =
       isEmpty?: false;
       label: string;
       value: string | null;
-      options: Option[];
+      options: SelectOption[];
       placeholder?: string;
       disabled?: boolean;
       onChange: (value: string | null) => void;
@@ -48,6 +44,7 @@ export const ControlSelectCell = (props: Props) => {
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
+            {o.isLatest ? ' (최신)' : ''}
           </option>
         ))}
       </select>
