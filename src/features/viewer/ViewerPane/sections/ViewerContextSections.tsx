@@ -1,5 +1,6 @@
 import type { ViewerContext } from '../../../../shared/types/context';
 import type { Drawing } from '../../../../shared/types/metadata';
+
 import { ContextValueCell } from '../cells/ContextValueCell';
 
 import styles from '../ViewerPane.module.css';
@@ -13,7 +14,7 @@ type Props = {
     description?: string;
     changes?: string[];
   } | null;
-  isLatest: Boolean;
+  isLatest: boolean;
 };
 
 export const ViewerContextSection = ({ context, drawing, revision, isLatest }: Props) => {
@@ -37,8 +38,10 @@ export const ViewerContextSection = ({ context, drawing, revision, isLatest }: P
           )
         }
       />
+
       <ContextValueCell label="공종" value={context.activeDiscipline ?? '-'} />
       <ContextValueCell label="구역" value={context.activeRegion ?? '-'} />
+
       <ContextValueCell
         label="리비전"
         value={
@@ -52,8 +55,10 @@ export const ViewerContextSection = ({ context, drawing, revision, isLatest }: P
           )
         }
       />
+
       <ContextValueCell label="날짜" value={revision?.date ?? '-'} />
       <ContextValueCell label="설명" value={revision?.description ?? '-'} />
+
       <ContextValueCell
         label="변경사항"
         value={

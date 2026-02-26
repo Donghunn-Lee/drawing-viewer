@@ -1,7 +1,8 @@
+import { ArrowLeftRight } from 'lucide-react';
+
 import type { ViewerLayout } from '../../../shared/types/viewerLayout';
 
 import styles from './ViewerPane.module.css';
-import { ArrowLeftRight } from 'lucide-react';
 
 type Props = {
   children: React.ReactNode;

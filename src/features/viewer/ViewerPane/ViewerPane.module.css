@@ -1,32 +1,29 @@
-/* =========================
-   Viewer Layout
-   ========================= */
-
 .viewerRoot {
   position: relative;
-  height: 100%;
-  width: 100%;
   display: grid;
+
+  width: 100%;
+  height: 100%;
 }
 
-/* ---------- Top ---------- */
+/* ========== Layout: Top ========== */
 
 .viewerTop {
-  grid-template-rows: auto 1fr;
   grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
 }
 
 .viewerTop .controlsPanel {
-  grid-row: 1;
   grid-column: 1;
+  grid-row: 1;
 }
 
 .viewerTop .canvasWrapper {
-  grid-row: 2;
   grid-column: 1;
+  grid-row: 2;
 }
 
-/* ---------- Side ---------- */
+/* ========== Layout: Side ========== */
 
 .viewerSide {
   height: 100%;
@@ -48,7 +45,10 @@
   grid-template-columns: 1fr 0;
 }
 
-/* ---------- grid placement ---------- */
+.viewerSide .controlsPanel,
+.viewerSide .canvasWrapper {
+  grid-row: 1;
+}
 
 .viewerSide .controlsPanel {
   grid-column: 1;
@@ -67,48 +67,45 @@
   grid-column: 1;
 }
 
-.viewerSide .controlsPanel,
-.viewerSide .canvasWrapper {
-  grid-row: 1;
-}
-
-/* =========================
-     Controls Panel
-     ========================= */
+/* ========== Controls Panel ========== */
 
 .controlsPanel {
   width: 100%;
 }
 
 .controlsTop {
-  padding: 2% 4%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 4%;
-  border-bottom: 1px solid #2a2a2a;
+
+  padding: 2% 4%;
+
   background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
 }
 
 .controlsSide {
+  position: relative;
+
   height: 100%;
   overflow: auto;
+
   background: #1a1a1a;
-  position: relative;
 }
 
-/* =========================
-     Context Card
-     ========================= */
+/* ========== Context Card ========== */
 
 .contextCard {
-  background: #1f1f1f;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
-  padding: 10px 12px 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  padding: 10px 12px 8px;
   overflow: hidden;
+
+  background: #1f1f1f;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
 }
 
 .contextCard > * {
@@ -116,30 +113,25 @@
 }
 
 .viewerSide.right .contextCard {
-  padding-left: 36px;
   padding-top: 36px;
+  padding-left: 36px;
   text-align: left;
 }
 
 .cardTitle {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+
   font-size: 15px;
   font-weight: 700;
   color: #cfcfcf;
-  padding-bottom: 6px;
-  margin-bottom: 8px;
+
   border-bottom: 1px solid #2a2a2a;
 }
 
-/* =========================
-     Control / Context Cells
-     ========================= */
+/* ========== Control / Context Cells ========== */
 
-.controlCell {
-  display: flex;
-  align-items: flex-start;
-  padding: 2px 0;
-}
-
+.controlCell,
 .contextCell {
   display: flex;
   align-items: flex-start;
@@ -147,46 +139,48 @@
 }
 
 .label {
-  width: 30%;
-  flex-shrink: 0;
-  height: 22px;
   display: flex;
   align-items: center;
+
+  width: 30%;
+  height: 22px;
+  flex-shrink: 0;
+
   font-size: 12px;
 }
 
 .value {
   flex: 1;
   min-width: 0;
+
   font-size: 14px;
   white-space: normal;
   word-break: break-all;
   overflow-wrap: anywhere;
 }
 
-.contextCell[data-empty='true'] .label {
+.contextCell[data-empty='true'] .label,
+.contextCell[data-empty='true'] .value,
+.controlCell[data-disabled='true'] .label {
   color: #666;
 }
 
-.contextCell[data-empty='true'] .value {
-  color: #666;
-}
-
-/* =========================
-     Form Controls
-     ========================= */
+/* ========== Form Controls ========== */
 
 .controlCell select {
-  padding: 3px 6px;
-  background: #2a2a2a;
-  color: #eaeaea;
-  border: 1px solid #3a3a3a;
-  border-radius: 4px;
   min-width: 0;
   max-width: 100%;
+
+  padding: 3px 6px;
+
+  color: #eaeaea;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
 }
 
 .controlCell select:focus {
@@ -194,15 +188,13 @@
 }
 
 .controlCell select:disabled {
-  background: #1e1e1e;
-  color: #7a7a7a;
-  border-color: #2a2a2a;
   cursor: not-allowed;
   opacity: 0.7;
-}
 
-.controlCell[data-disabled='true'] .label {
-  color: #666;
+  color: #7a7a7a;
+
+  background: #1e1e1e;
+  border-color: #2a2a2a;
 }
 
 .checkbox {
@@ -211,8 +203,8 @@
 }
 
 .checkbox input {
+  margin-left: 0;
   cursor: pointer;
-  margin-left: 0px;
 }
 
 .checkbox input:disabled {
@@ -224,23 +216,34 @@
   opacity: 0.4;
 }
 
-/* =========================
-     Canvas
-     ========================= */
+/* ========== Canvas ========== */
 
 .canvasWrapper {
   min-width: 0;
   min-height: 0;
 }
 
-/* =========================
-     Panel Toggle Button
-     ========================= */
+/* ========== Panel Toggle Button ========== */
 
 .panelToggleButton {
   position: absolute;
   top: 12px;
   right: 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2px;
+  margin: 0;
+
+  color: #cfcfcf;
+
+  background: transparent;
+  border-radius: 6px;
+
+  cursor: pointer;
+  z-index: 10;
 }
 
 .viewerSide.right .panelToggleButton {
@@ -248,23 +251,10 @@
   right: auto;
 }
 
-.panelToggleButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px;
-  margin: 0px;
-  background: transparent;
-  border-radius: 6px;
-  color: #cfcfcf;
-  cursor: pointer;
-  z-index: 10;
-}
-
 .panelToggleButton:hover {
+  color: #fff;
   background: #2a2a2a;
   border-color: #3a3a3a;
-  color: #fff;
 }
 
 .panelToggleButton:focus {
@@ -275,6 +265,7 @@
 .baseBadge,
 .latestBadge {
   margin-left: 6px;
+
   font-size: 12px;
   color: #8a8a8a;
   letter-spacing: 0.02em;

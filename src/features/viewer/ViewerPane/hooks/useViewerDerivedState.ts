@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
+
+import { canUseOverlay } from '../../../../entities/drawing/selectors';
+
 import type { ViewerContext } from '../../../../shared/types/context';
 import type { Drawing } from '../../../../shared/types/metadata';
-import { canUseOverlay } from '../../../../entities/drawing/selectors';
 
 type Params = {
   context: ViewerContext;

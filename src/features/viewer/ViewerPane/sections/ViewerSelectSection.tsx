@@ -1,8 +1,11 @@
 import { getOverlayImage } from '../../../../entities/drawing/selectors';
+
 import type { ViewerContext } from '../../../../shared/types/context';
 import type { Drawing } from '../../../../shared/types/metadata';
-import { ControlSelectCell } from '../cells/ControlSelectCell';
+
 import { ControlCheckboxCell } from '../cells/ControlcheckboxCell';
+import { ControlSelectCell } from '../cells/ControlSelectCell';
+
 import type { SelectOption, ViewerDerivedState } from '../hooks/useViewerDerivedState';
 
 type Props = {
@@ -11,6 +14,7 @@ type Props = {
   drawing: Drawing | null;
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
 };
+
 export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }: Props) => {
   const { normalized, options, availability, activeRevisionData } = state;
 
@@ -19,7 +23,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
   const overlayInfo =
     drawing &&
     getOverlayImage({
-      drawing: drawing,
+      drawing,
       activeDiscipline: normalized.discipline,
       activeRegion: normalized.region,
       activeRevision: normalized.revision,
@@ -34,7 +38,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
         value={normalized.site}
         options={siteOptions}
         onChange={(v) =>
-          setContext((p: ViewerContext) => ({
+          setContext((p) => ({
             ...p,
             activeDrawingId: v,
             activeDiscipline: null,
@@ -51,7 +55,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
         options={options.discipline}
         disabled={options.discipline.length < 1}
         onChange={(v) =>
-          setContext((p: ViewerContext) => ({
+          setContext((p) => ({
             ...p,
             activeDiscipline: v,
             activeRegion: null,
@@ -67,7 +71,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
         options={options.region}
         disabled={!availability.region}
         onChange={(v) =>
-          setContext((p: ViewerContext) => ({
+          setContext((p) => ({
             ...p,
             activeRegion: v,
             activeRevision: null,
@@ -82,7 +86,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
         options={options.revision}
         disabled={!availability.revision}
         onChange={(v) =>
-          setContext((p: ViewerContext) => ({
+          setContext((p) => ({
             ...p,
             activeRevision: v,
             overlay: { ...p.overlay, enabled: false },
@@ -96,7 +100,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
         disabled={!availability.overlay}
         description={overlayFileName}
         onChange={(v) =>
-          setContext((p: any) => ({
+          setContext((p) => ({
             ...p,
             overlay: { ...p.overlay, enabled: v },
           }))

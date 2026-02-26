@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef } from 'react';
 import clsx from 'clsx';
+import { useEffect, useMemo, useRef } from 'react';
 
 import type { ViewerContext } from '../../../shared/types/context';
 import type { Metadata } from '../../../shared/types/metadata';
@@ -7,14 +7,14 @@ import type { ViewerLayout } from '../../../shared/types/viewerLayout';
 
 import metadataJson from '../../../data/metadata.json';
 
+import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
+
+import { useViewerDerivedState } from './hooks/useViewerDerivedState';
+import { ContextCard } from './layout/ContextCard';
 import { DrawingCanvas } from './DrawingCanvas';
 import { ViewerControlsPanel } from './ViewerControlsPanel';
-import { ViewerSelectSection } from './sections/ViewerSelectSection';
 import { ViewerContextSection } from './sections/ViewerContextSections';
-import { ContextCard } from './layout/ContextCard';
-
-import { getBaseImageSrc, getOverlayImage } from '../../../entities/drawing/selectors';
-import { useViewerDerivedState } from './hooks/useViewerDerivedState';
+import { ViewerSelectSection } from './sections/ViewerSelectSection';
 
 import styles from './ViewerPane.module.css';
 
@@ -56,10 +56,7 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
       .filter((d) => d.parent === rootDrawing.id)
       .map((d) => ({ value: d.id, label: d.name }));
 
-    return [
-      { value: rootDrawing.id, label: rootDrawing.name }, // ← 전체 배치도
-      ...children,
-    ];
+    return [{ value: rootDrawing.id, label: rootDrawing.name }, ...children];
   }, [rootDrawing]);
 
   const derived = useViewerDerivedState({ context, drawing: drawingForView });
@@ -86,6 +83,7 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
 
   const polygons = useMemo(() => {
     if (!drawingForView || drawingForView.parent !== null) return [];
+
     return Object.values(metadata.drawings)
       .filter((d) => d.parent === drawingForView.id && d.position)
       .map((child) => ({
@@ -132,6 +130,7 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
         activeRevision: null,
       }));
     }
+
     prevDrawingId.current = context.activeDrawingId;
   }, [context.activeDrawingId, setContext]);
 
