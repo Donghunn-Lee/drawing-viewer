@@ -30,7 +30,7 @@ export const ControlSelectCell = (props: Props) => {
     );
   }
 
-  const { label, value, options, placeholder = 'Select', disabled, onChange } = props;
+  const { label, value, options, placeholder = '-', disabled, onChange } = props;
 
   return (
     <div className={styles.controlCell}>

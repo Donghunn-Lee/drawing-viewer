@@ -34,6 +34,7 @@ export const ViewerSelectSection = ({ state, siteOptions, setContext }: Props) =
         label="공종"
         value={normalized.discipline}
         options={options.discipline}
+        disabled={options.discipline.length < 1}
         onChange={(v) =>
           setContext((p: any) => ({
             ...p,
