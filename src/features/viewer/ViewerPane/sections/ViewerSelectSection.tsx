@@ -32,11 +32,15 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
     });
 
   const overlayFileName = overlayInfo ? overlayInfo.src.replace('/drawings/', '') : undefined;
-
+  const overlayDescription = availability.overlay
+    ? overlayFileName
+    : '연결된 오버레이 이미지가 없습니다';
   const overlayOpacity = normalized.overlay.opacity ?? 0.5;
   const overlayOpacityPercent = Math.round(overlayOpacity * 100);
-
   const overlayControlsDisabled = !availability.overlay || !normalized.overlay.enabled;
+
+  const blendPercent = overlayOpacityPercent;
+  const currentPercent = 100 - blendPercent;
 
   return (
     <>
@@ -105,7 +109,7 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
         label="오버레이"
         checked={normalized.overlay.enabled}
         disabled={!availability.overlay}
-        description={overlayFileName}
+        description={overlayDescription}
         onChange={(v) =>
           setContext((p) => ({
             ...p,
@@ -121,28 +125,29 @@ export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }:
         <span className={styles.label}>블렌드</span>
 
         <div className={styles.blendRow}>
+          <span className={styles.blendValue}>{currentPercent}%</span>
           <span className={styles.blendLabel}>Current</span>
-
-          <input
-            className={styles.blendSlider}
-            type="range"
-            min={0}
-            max={100}
-            step={5}
-            value={overlayOpacityPercent}
-            disabled={overlayControlsDisabled}
-            onChange={(e) => {
-              const next = Number(e.target.value) / 100;
-              setContext((p) => ({
-                ...p,
-                overlay: { ...p.overlay, opacity: next },
-              }));
-            }}
-            aria-label="Blend current and overlay"
-          />
-
+          <div>
+            <input
+              className={styles.blendSlider}
+              type="range"
+              min={0}
+              max={100}
+              step={5}
+              value={blendPercent}
+              disabled={overlayControlsDisabled}
+              onChange={(e) => {
+                const next = Number(e.target.value) / 100;
+                setContext((p) => ({
+                  ...p,
+                  overlay: { ...p.overlay, opacity: next },
+                }));
+              }}
+              aria-label="Blend current and overlay"
+            />
+          </div>
           <span className={styles.blendLabel}>Overlay</span>
-          <span className={styles.blendValue}>{overlayOpacityPercent}%</span>
+          <span className={styles.blendValue}>{blendPercent}%</span>
         </div>
       </div>
     </>
