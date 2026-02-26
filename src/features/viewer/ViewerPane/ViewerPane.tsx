@@ -113,6 +113,16 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
   };
 
   useEffect(() => {
+    if (!rootDrawing) return;
+    if (context.activeDrawingId) return;
+
+    setContext((prev) => ({
+      ...prev,
+      activeDrawingId: rootDrawing.id,
+    }));
+  }, [rootDrawing, context.activeDrawingId, setContext]);
+
+  useEffect(() => {
     if (prevDrawingId.current && prevDrawingId.current !== context.activeDrawingId) {
       setContext((prev) => ({
         ...prev,
