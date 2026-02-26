@@ -9,7 +9,7 @@ type Props = {
 
 export const ControlCheckboxCell = ({ label, checked, disabled, onChange }: Props) => {
   return (
-    <div className={styles.controlCell}>
+    <div className={styles.controlCell} data-disabled={disabled ? 'true' : undefined}>
       <span className={styles.label}>{label}</span>
 
       <label className={styles.checkbox}>

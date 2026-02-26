@@ -7,8 +7,10 @@ type Props = {
 };
 
 export const ContextValueCell = ({ label, value, emptyText = '-' }: Props) => {
+  const isEmpty = value == null || value === emptyText;
+
   return (
-    <div className={styles.contextCell}>
+    <div className={styles.contextCell} data-empty={isEmpty ? 'true' : undefined}>
       <span className={styles.label}>{label}</span>
       <span className={styles.value}>{value ?? emptyText}</span>
     </div>
