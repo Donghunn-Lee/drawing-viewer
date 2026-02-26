@@ -202,6 +202,15 @@
   cursor: pointer;
 }
 
+.checkbox input:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.checkbox input:disabled + span {
+  opacity: 0.4;
+}
+
 /* =========================
      Canvas
      ========================= */

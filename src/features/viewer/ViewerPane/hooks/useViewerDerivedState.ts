@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { ViewerContext } from '../../../../shared/types/context';
 import type { Drawing } from '../../../../shared/types/metadata';
+import { canUseOverlay } from '../../../../entities/drawing/selectors';
 
 type Params = {
   context: ViewerContext;
@@ -74,6 +75,14 @@ export const useViewerDerivedState = ({ context, drawing }: Params) => {
     return revisions.find((r) => r.version === normalized.revision) ?? null;
   }, [activeDisciplineData, normalized.region, normalized.revision]);
 
+  const overlayAvailable = useMemo(() => {
+    return canUseOverlay({
+      drawing,
+      activeDiscipline: normalized.discipline,
+      activeRegion: normalized.region,
+    });
+  }, [drawing, normalized.discipline, normalized.region]);
+
   return {
     normalized,
     options: {
@@ -86,6 +95,7 @@ export const useViewerDerivedState = ({ context, drawing }: Params) => {
       revision:
         Boolean(activeDisciplineData) &&
         (!activeDisciplineData?.regions || Boolean(normalized.region)),
+      overlay: overlayAvailable,
     },
     activeRevisionData,
   };

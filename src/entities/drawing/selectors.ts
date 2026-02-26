@@ -277,3 +277,33 @@ export const resolveRevisionContext = (
     latestRevision: latest,
   };
 };
+
+export const canUseOverlay = ({
+  drawing,
+  activeDiscipline,
+  activeRegion,
+}: {
+  drawing: Drawing | null;
+  activeDiscipline: string | null;
+  activeRegion: string | null;
+}): boolean => {
+  if (!drawing || !activeDiscipline) return false;
+
+  const discipline = drawing.disciplines?.[activeDiscipline];
+  if (!discipline) return false;
+
+  // known invalid overlay cases
+  if (drawing.id === '01' && activeRegion) {
+    return false;
+  }
+
+  // region bases
+  if (discipline.regions) {
+    if (!activeRegion) return false;
+    const region = discipline.regions[activeRegion];
+    return Boolean(region?.revisions?.some((r) => r.imageTransform?.relativeTo));
+  }
+
+  // discipline bases, allow self to self
+  return Boolean(discipline.imageTransform?.relativeTo);
+};

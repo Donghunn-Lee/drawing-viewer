@@ -15,9 +15,12 @@ export const ControlCheckboxCell = ({ label, checked, disabled, onChange }: Prop
       <label className={styles.checkbox}>
         <input
           type="checkbox"
-          checked={checked}
+          checked={disabled ? false : checked}
           disabled={disabled}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(e) => {
+            if (disabled) return;
+            onChange(e.target.checked);
+          }}
         />
         <span />
       </label>

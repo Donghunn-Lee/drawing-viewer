@@ -26,6 +26,7 @@ export const ViewerSelectSection = ({ state, siteOptions, setContext }: Props) =
             activeDiscipline: null,
             activeRegion: null,
             activeRevision: null,
+            overlay: { ...p.overlay, enabled: false },
           }))
         }
       />
@@ -36,11 +37,12 @@ export const ViewerSelectSection = ({ state, siteOptions, setContext }: Props) =
         options={options.discipline}
         disabled={options.discipline.length < 1}
         onChange={(v) =>
-          setContext((p: any) => ({
+          setContext((p: ViewerContext) => ({
             ...p,
             activeDiscipline: v,
             activeRegion: null,
             activeRevision: null,
+            overlay: { ...p.overlay, enabled: false },
           }))
         }
       />
@@ -51,10 +53,11 @@ export const ViewerSelectSection = ({ state, siteOptions, setContext }: Props) =
         options={options.region}
         disabled={!availability.region}
         onChange={(v) =>
-          setContext((p: any) => ({
+          setContext((p: ViewerContext) => ({
             ...p,
             activeRegion: v,
             activeRevision: null,
+            overlay: { ...p.overlay, enabled: false },
           }))
         }
       />
@@ -64,12 +67,19 @@ export const ViewerSelectSection = ({ state, siteOptions, setContext }: Props) =
         value={revisionSelectValue}
         options={options.revision}
         disabled={!availability.revision}
-        onChange={(v) => setContext((p: any) => ({ ...p, activeRevision: v }))}
+        onChange={(v) =>
+          setContext((p: ViewerContext) => ({
+            ...p,
+            activeRevision: v,
+            overlay: { ...p.overlay, enabled: false },
+          }))
+        }
       />
 
       <ControlCheckboxCell
         label="오버레이"
         checked={normalized.overlay.enabled}
+        disabled={!availability.overlay}
         onChange={(v) =>
           setContext((p: any) => ({
             ...p,
