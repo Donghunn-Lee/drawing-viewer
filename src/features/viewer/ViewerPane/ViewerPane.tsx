@@ -142,6 +142,7 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
               <ViewerSelectSection
                 state={derived}
                 siteOptions={siteOptions}
+                drawing={drawingForView}
                 setContext={setContext}
               />
             </ContextCard>

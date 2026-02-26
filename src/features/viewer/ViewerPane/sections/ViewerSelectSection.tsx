@@ -1,4 +1,6 @@
+import { getOverlayImage } from '../../../../entities/drawing/selectors';
 import type { ViewerContext } from '../../../../shared/types/context';
+import type { Drawing } from '../../../../shared/types/metadata';
 import { ControlSelectCell } from '../cells/ControlSelectCell';
 import { ControlCheckboxCell } from '../cells/ControlcheckboxCell';
 import type { SelectOption, ViewerDerivedState } from '../hooks/useViewerDerivedState';
@@ -6,12 +8,24 @@ import type { SelectOption, ViewerDerivedState } from '../hooks/useViewerDerived
 type Props = {
   state: ViewerDerivedState;
   siteOptions: SelectOption[];
+  drawing: Drawing | null;
   setContext: React.Dispatch<React.SetStateAction<ViewerContext>>;
 };
-export const ViewerSelectSection = ({ state, siteOptions, setContext }: Props) => {
+export const ViewerSelectSection = ({ state, siteOptions, drawing, setContext }: Props) => {
   const { normalized, options, availability, activeRevisionData } = state;
 
   const revisionSelectValue = normalized.revision ?? activeRevisionData?.version ?? null;
+
+  const overlayInfo =
+    drawing &&
+    getOverlayImage({
+      drawing: drawing,
+      activeDiscipline: normalized.discipline,
+      activeRegion: normalized.region,
+      activeRevision: normalized.revision,
+    });
+
+  const overlayFileName = overlayInfo ? overlayInfo.src.replace('/drawings/', '') : undefined;
 
   return (
     <>
@@ -80,6 +94,7 @@ export const ViewerSelectSection = ({ state, siteOptions, setContext }: Props) =
         label="오버레이"
         checked={normalized.overlay.enabled}
         disabled={!availability.overlay}
+        description={overlayFileName}
         onChange={(v) =>
           setContext((p: any) => ({
             ...p,

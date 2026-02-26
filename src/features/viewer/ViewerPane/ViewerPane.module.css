@@ -136,7 +136,7 @@
 
 .controlCell {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 2px 0;
 }
 
@@ -212,6 +212,7 @@
 
 .checkbox input {
   cursor: pointer;
+  margin-left: 0px;
 }
 
 .checkbox input:disabled {
