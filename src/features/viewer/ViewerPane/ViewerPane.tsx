@@ -51,9 +51,15 @@ export const ViewerPane = ({ context, setContext, viewerLayout, setViewerLayout 
 
   const siteOptions = useMemo(() => {
     if (!rootDrawing) return [];
-    return Object.values(metadata.drawings)
+
+    const children = Object.values(metadata.drawings)
       .filter((d) => d.parent === rootDrawing.id)
       .map((d) => ({ value: d.id, label: d.name }));
+
+    return [
+      { value: rootDrawing.id, label: rootDrawing.name }, // ← 전체 배치도
+      ...children,
+    ];
   }, [rootDrawing]);
 
   const derived = useViewerDerivedState({ context, drawing: drawingForView });
